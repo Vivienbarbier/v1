@@ -1,8 +1,7 @@
 <script>
 import axios from "axios";
-
 import i18n from "../i18n";
-import authMethods from "../state/helpers";
+import store from '@/state/store'
 
 //import simplebar from "simplebar-vue";
 
@@ -11,8 +10,7 @@ import authMethods from "../state/helpers";
  */
 export default {
   data() {
-    return {
-      userName: localStorage.displayName,
+    return {    
       languages: [
         {
           flag: require("@/assets/images/flags/us.jpg"),
@@ -46,20 +44,20 @@ export default {
       value: null,
     };
   },
+  computed: {
+    displayName : function() {
+      return store.getters['auth/getCurrentUser'].displayName;
+    }
+  },
   //components: { simplebar },
   mounted() {
     this.value = this.languages.find((x) => x.language === i18n.locale);
     this.text = this.value.title;
     this.flag = this.value.flag;
   },
-  methods: {
-    ...authMethods,
-    updateProfile(){
-
-      console.log("click");
-      var currentUser = this.sessionStorage.getItem('authUser');
-      console.log(currentUser)
-
+   methods: {
+    toto(){
+      console.log(store.getters['auth/getUserName']);
     },
     toggleMenu() {
       this.$parent.toggleMenu();
@@ -163,7 +161,7 @@ export default {
           id="horizontal-menu-btn"
           type="button"
           class="btn btn-sm px-3 font-size-16 header-item"
-          @click="updateProfile"
+          @click="toto"
         >
           <i class="fa fa-fw fa-bars"></i>
         </button>
@@ -375,11 +373,11 @@ export default {
           <template v-slot:button-content>
             <img
               class="rounded-circle header-profile-user"
-              src="@/assets/images/users/avatar-1.jpg"
+              src="@/assets/images/users/avatar-homme.png"
               alt="Header Avatar"
             />
             <span class="d-none d-xl-inline-block ms-1">{{
-              userName
+              displayName
             }}</span>
             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
           </template>

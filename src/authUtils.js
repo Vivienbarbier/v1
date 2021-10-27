@@ -53,7 +53,7 @@ class FirebaseAuthBackend {
     /**
      * Login user with given details
      */
-     updateProfile = (displayName) => {
+     updateProfile = (displayName) => {    
         return new Promise((resolve, reject) => {
             firebase.auth().currentUser.updateProfile({displayName : displayName}).then(() => {
                 resolve(true);

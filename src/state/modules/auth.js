@@ -16,6 +16,9 @@ export const getters = {
     loggedIn(state) {
         return !!state.currentUser
     },
+    getCurrentUser(state){
+        return state.currentUser;
+    }
 }
 
 export const actions = {
@@ -33,6 +36,7 @@ export const actions = {
         return getFirebaseBackend().loginUser(email, password).then((response) => {
             const user = response
             commit('SET_CURRENT_USER', user)
+            console.log(user);
             return user
         });
     },
@@ -63,23 +67,20 @@ export const actions = {
     },
 
     // update User Information
-    updateProfile({ commit, dispatch, getters }, { displayName } = {}) {
-        console.log("Update user Name" & displayName );
-        if (getters.loggedIn) return dispatch('validate')
-        return getFirebaseBackend().updateProfile(displayName).then((response) => {
-            console.log(JSON.stringify(response))
-            const user = getFirebaseBackend().getAuthenticatedUser();
+    updateProfile({ commit}, { displayName } = {}) { 
+        console.log("Try to update name;")
+        console.log (displayName);      
+        return getFirebaseBackend().updateProfile(displayName).then(() => {
+            var user = getFirebaseBackend().getAuthenticatedUser();  
+            user.displayName = displayName;
             commit('SET_CURRENT_USER', user)
             return user;
         });
     },
-
-
     // register the user
     // eslint-disable-next-line no-unused-vars
     resetPassword({ commit, dispatch, getters }, { email } = {}) {
         if (getters.loggedIn) return dispatch('validate')
-
         return getFirebaseBackend().forgetPassword(email).then((response) => {
             const message = response.data
             return message

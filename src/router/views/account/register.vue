@@ -1,6 +1,7 @@
 <script>
 import axios from "axios";
 
+
 import {
   authMethods,
   authFackMethods,
@@ -87,6 +88,9 @@ export default {
             })
               // eslint-disable-next-line no-unused-vars
               .then((token) => {
+                this.updateProfile( {
+                  displayName: this.user.username
+                })
                 this.tryingToRegister = false;
                 this.isRegisterError = false;
                 this.registerSuccess = true;
@@ -96,9 +100,7 @@ export default {
                       name: "default",
                     }
                   );
-                }
-                console.log("Try to change name");
-                this.updateProfile("Vsdflsd")
+                }     
               })
               .catch((error) => {
                 this.tryingToRegister = false;
