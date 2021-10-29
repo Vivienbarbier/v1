@@ -4,6 +4,7 @@ import "firebase/auth";
 import "firebase/firestore";
 
 class FirebaseAuthBackend {
+
     constructor(firebaseConfig) {
         if (firebaseConfig) {
             // Initialize Firebase
@@ -49,7 +50,14 @@ class FirebaseAuthBackend {
         });
     }
 
+    /**
+     * getFirestore
+     */
+     getFirestore = () => {
+        return firebase.firestore();
+    }
     
+
     /**
      * Login user with given details
      */

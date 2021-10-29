@@ -13,33 +13,25 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import "../src/design/app.scss";
 
 import store from '@/state/store'
+import i18n from './i18n'
 
 import App from './App.vue'
 
-import { initFirebaseBackend } from './authUtils'
-import i18n from './i18n'
-
-import { configureFakeBackend } from './helpers/fake-backend';
-
+import { initFirebaseBackend } from './firebaseUtils'
 import tinymce from 'vue-tinymce-editor'
 
 const firebaseConfig = {
   apiKey: process.env.VUE_APP_APIKEY,
   authDomain: process.env.VUE_APP_AUTHDOMAIN,
   databaseURL: process.env.VUE_APP_VUE_APP_DATABASEURL,
-  projectId: process.env.VUE_APP_PROJECTId,
+  projectId: process.env.VUE_APP_PROJECTID,
   storageBucket: process.env.VUE_APP_STORAGEBUCKET,
   messagingSenderId: process.env.VUE_APP_MESSAGINGSENDERID,
   appId: process.env.VUE_APP_APPId,
   measurementId: process.env.VUE_APP_MEASUREMENTID
 };
 
-if (process.env.VUE_APP_DEFAULT_AUTH === "firebase") {
-  initFirebaseBackend(firebaseConfig);
-} else {
-  configureFakeBackend();
-}
-
+initFirebaseBackend(firebaseConfig);
 Vue.component('tinymce', tinymce)
 Vue.use(VueRouter)
 Vue.use(vco)
