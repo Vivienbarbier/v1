@@ -33,7 +33,7 @@ export const menuItems = [
             {
                 id: 39,
                 label: "menuitems.case.list.list",
-                link: "/",
+                link: "/cases",
                 parentId: 37
             },
             {

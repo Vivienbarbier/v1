@@ -11,6 +11,12 @@ import Scrollspy from 'vue2-scrollspy';
 import VueSweetalert2 from 'vue-sweetalert2';
 
 import "../src/design/app.scss";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@andresouzaabreu/vue-data-table/dist/DataTable.css";
+
+import DataTable from "@andresouzaabreu/vue-data-table";
+
+
 
 import store from '@/state/store'
 import i18n from './i18n'
@@ -32,7 +38,9 @@ const firebaseConfig = {
 };
 
 initFirebaseBackend(firebaseConfig);
-Vue.component('tinymce', tinymce)
+Vue.component('tinymce', tinymce);
+Vue.component("data-table", DataTable);
+
 Vue.use(VueRouter)
 Vue.use(vco)
 Vue.use(Scrollspy);

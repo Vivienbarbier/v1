@@ -10,6 +10,7 @@
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
   },
   "dependencies": {
+    "@andresouzaabreu/vue-data-table": "^3.2.1",
     "@ckeditor/ckeditor5-build-classic": "^22.0.0",
     "@ckeditor/ckeditor5-vue": "^1.0.3",
     "@fullcalendar/bootstrap": "^5.3.1",
@@ -32,7 +33,7 @@
     "leaflet": "^1.7.1",
     "metismenujs": "^1.2.1",
     "sass": "^1.30.0",
-    "sass-loader": "^10.1.0",
+    "sass-loader": "^10.1.1",
     "simplebar-vue": "^1.6.0",
     "sweetalert2": "^10.12.3",
     "v-click-outside": "^3.1.2",

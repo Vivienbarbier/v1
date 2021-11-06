@@ -10,6 +10,12 @@ export default [
     component: () => import('./views/dashboards/default'),
   },
   {
+    path: "/cases",
+    name: "case-list",
+    meta: { authRequired: true },
+    component: () => import('./views/case/case-list')
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('./views/account/login'),

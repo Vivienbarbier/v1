@@ -15,7 +15,6 @@ export default {
     title: "Dashboard",
     meta: [{ name: "description", content: appConfig.description }],
   },
-
   components: {
     Layout,
     PageHeader,
