@@ -164,7 +164,7 @@ export default {
               >
             </td> 
             <td>
-              <router-link :to="{ name: 'case-detail', params: { bu:'OCPL', caseId: data.id }}">
+              <router-link :to="{ name: 'case-detail', params: { bu:data.business_unit, caseId: data.id }}">
                 <i class="mdi mdi-dots-horizontal font-size-18"></i>           
               </router-link>
             </td>

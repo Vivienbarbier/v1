@@ -60,6 +60,7 @@ export default {
             list.forEach((c) => {
               this.caselist.push({
                 id : c.id,
+                business_unit: doc.id,
                 index : ++count,
                 work_order_number : c.work_order_number,
                 imputation_code   : c.imputation_code,
