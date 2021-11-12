@@ -42,7 +42,7 @@ export default {
   },
   mounted(){
     var db = getFirebaseBackend().getFirestore();
-    db.collection("case").doc('OCPL').collection("2021").doc(this.$route.params.caseId)
+    db.collection("case").doc(this.$route.params.bu).collection("2021").doc(this.$route.params.caseId)
         .get().then((document) => {          
           this.caseDoc = document.data();
         });

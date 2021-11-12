@@ -16,7 +16,7 @@ export default [
     component: () => import('./views/case/list-view')
   },
   {
-    path: '/case/detail/:caseId',
+    path: '/case/detail/:bu/:caseId',
     name: 'case-detail',
     meta: { authRequired: true },
     component: () => import('./views/case/case-detail'),
