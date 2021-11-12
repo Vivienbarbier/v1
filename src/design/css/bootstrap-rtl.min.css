@@ -9206,7 +9206,11 @@ label {
 
 .badge-soft-warning {
   color: #f1b44c;
-  background-color: rgba(241, 180, 76, 0.18); }
+  background-color: rgba(241, 180, 76, 1); }
+  .badge-soft-warning:hover, .badge-soft-warning:focus {
+    color: #000;
+    text-decoration: none;
+    background-color: rgba(241, 180, 76, 1); }
   .badge-soft-warning[href]:hover, .badge-soft-warning[href]:focus {
     color: #f1b44c;
     text-decoration: none;
@@ -9222,11 +9226,11 @@ label {
 
 .badge-soft-danger {
   color: #f46a6a;
-  background-color: rgba(244, 106, 106, 0.18); }
+  background-color: rgba(244, 106, 106, 0,5); }
   .badge-soft-danger[href]:hover, .badge-soft-danger[href]:focus {
     color: #f46a6a;
     text-decoration: none;
-    background-color: rgba(244, 106, 106, 0.4); }
+    background-color: rgba(244, 106, 106, 0,5); }
 
 .badge.bg-pink[href]:hover, .badge.bg-pink[href]:focus {
   background-color: #e62c81 !important; }

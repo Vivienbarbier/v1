@@ -11,9 +11,9 @@ export default [
   },
   {
     path: "/cases",
-    name: "case-list",
+    name: "list-view",
     meta: { authRequired: true },
-    component: () => import('./views/case/case-list')
+    component: () => import('./views/case/list-view')
   },
   {
     path: '/login',

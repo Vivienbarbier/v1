@@ -9,7 +9,11 @@ class FirebaseAuthBackend {
         if (firebaseConfig) {
             // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
-            firebase.auth().onAuthStateChanged((user) => {
+            var auth = firebase.auth();
+            if (process.env.NODE_ENV  === "development"){
+                firebase.firestore().useEmulator('localhost', 8083);
+            }
+            auth.onAuthStateChanged((user) => {
                 if (user) {
                     sessionStorage.setItem("authUser", JSON.stringify(user));
                 } else {
@@ -24,7 +28,8 @@ class FirebaseAuthBackend {
      */
     registerUser = (email, password, displayName) => {
         return new Promise((resolve, reject) => {
-            firebase.auth().createUserWithEmailAndPassword(email, password).then((user) => {
+            const auth = firebase.auth();
+            auth.createUserWithEmailAndPassword(email, password).then((user) => {
                 // eslint-disable-next-line no-redeclare
                 var user = firebase.auth().currentUser;
                 resolve(user);
@@ -40,7 +45,8 @@ class FirebaseAuthBackend {
      */
     loginUser = (email, password) => {
         return new Promise((resolve, reject) => {
-            firebase.auth().signInWithEmailAndPassword(email, password).then((user) => {
+            const auth = firebase.auth();
+            auth.signInWithEmailAndPassword(email, password).then((user) => {
                 // eslint-disable-next-line no-redeclare
                 var user = firebase.auth().currentUser;
                 resolve(user);
@@ -54,7 +60,11 @@ class FirebaseAuthBackend {
      * getFirestore
      */
      getFirestore = () => {
-        return firebase.firestore();
+        var db = firebase.firestore();
+        if (process.env.NODE_ENV  === "development"){ 
+            db.useEmulator('localhost',8083);
+        }
+        return db;        
     }
     
 
@@ -63,7 +73,8 @@ class FirebaseAuthBackend {
      */
      updateProfile = (displayName) => {    
         return new Promise((resolve, reject) => {
-            firebase.auth().currentUser.updateProfile({displayName : displayName}).then(() => {
+            const auth = firebase.auth();
+            auth.currentUser.updateProfile({displayName : displayName}).then(() => {
                 resolve(true);
             }).catch((error) => {
                 reject(this._handleError(error));  
@@ -76,7 +87,8 @@ class FirebaseAuthBackend {
      */
     forgetPassword = (email) => {
         return new Promise((resolve, reject) => {
-            firebase.auth().sendPasswordResetEmail(email, { url: window.location.protocol + "//" + window.location.host + "/login" }).then(() => {
+            const auth = firebase.auth();
+            auth.sendPasswordResetEmail(email, { url: window.location.protocol + "//" + window.location.host + "/login" }).then(() => {
                 resolve(true);
             }).catch((error) => {
                 reject(this._handleError(error));
@@ -89,7 +101,8 @@ class FirebaseAuthBackend {
      */
     logout = () => {
         return new Promise((resolve, reject) => {
-            firebase.auth().signOut().then(() => {
+            const auth = firebase.auth();
+            auth.signOut().then(() => {
                 resolve(true);
             }).catch((error) => {
                 reject(this._handleError(error));

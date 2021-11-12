@@ -1,0 +1,219 @@
+<script>
+import Loader from "./loader";
+
+/**
+ * caselist component
+ */
+export default {
+  components: {
+    Loader,
+  },
+  props: {
+    filter: {
+      type: String,
+      default: function () {
+        return null;
+      },
+    },
+    headers: {
+      type: Array,
+      default: function () {
+        return null;
+      },
+    },
+    caselist: {
+      type: Array,
+      default: function () {
+        return [];
+      },
+    },
+    updating: {
+      type: Boolean,
+    },
+  },
+  watch : {
+    filter : function() { // watch it
+        this.updateTable();
+    }
+  },
+  data() {
+    return {
+      table : [],
+      currentSort:'name',
+      currentSortDir:'asc',
+      showModal: false,
+    };
+  },
+  mounted(){
+     this.table = this.caselist;
+  },
+  methods: {
+    updateTable(){
+      if (this.filter === null || this.filter === ""){
+        this.table = this.caselist;
+      }else{
+        this.table = [];
+        //console.log(JSON.stringify(this.caselist))
+        for (const i in this.caselist) {
+          const c = this.caselist[i];
+          this.filter = this.filter.toLowerCase();
+          if(  (c.name !== null               && c.name.toLowerCase().includes(this.filter)             )
+            || (c.work_order_number !== null  && c.work_order_number.toLowerCase().includes(this.filter)) 
+            || (c.owner !== null              && c.owner.toLowerCase().includes(this.filter)            )
+            || (c.client !== null             && c.client.toLowerCase().includes(this.filter)           )
+            || (c.start_date !== null         && c.start_date.toLowerCase().includes(this.filter)       )
+            || (c.status !== null             && c.status.toLowerCase().includes(this.filter)           )
+             ){
+            this.table.push(c);
+          }
+        }
+      }
+    },
+    sort(s) {
+      if(s === this.currentSort) {
+        this.currentSortDir = this.currentSortDir==='asc'?'desc':'asc';
+      }
+      this.currentSort = s;
+      this.table.sort((a,b) => {
+        let modifier = 1;
+        if(this.currentSortDir === 'desc') modifier = -1;
+        if(a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+        if(a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+        return 0;
+      });
+    }
+  }
+};
+</script>
+
+<template>
+  <Loader :loading="updating">
+    <div class="table-responsive mb-0">
+      <table class="table align-middle table-nowrap">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 30px">
+              <div class="form-check font-size-16 align-middle">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="transactionCheck01"
+                />
+              </div>
+            </th>
+            <th @click="sort('work_order_number')" class="width:100px">N° Cmd<span style="float:right;"><i :class="[((this.currentSort == 'work_order_number') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th @click="sort('owner')" >Resp.<span style="float:right;"><i :class="[((this.currentSort == 'owner') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th @click="sort('client')">Client<span style="float:right;"><i :class="[((this.currentSort == 'client') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th @click="sort('name')"  style="width:400px">Nom du chantier<span style="float:right;"><i :class="[((this.currentSort == 'name') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th @click="sort('revenu')">Chiffre d'affaires<span style="float:right;"><i :class="[((this.currentSort == 'revenu') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th @click="sort('start_date')" align="center">Début<span style="float:right;"><i :class="[((this.currentSort == 'start_date') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th @click="sort('progress')">Avancement<span style="float:right;"><i :class="[((this.currentSort == 'progress') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th @click="sort('status')">Status<span style="float:right;"><i :class="[((this.currentSort == 'status') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <th></th> 
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="data in table" :key="data.index">
+            <template v-if="data.progress=1">
+            <td>
+              <div class="form-check font-size-16">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  :id="`transactionCheck${data.index}`"
+                />
+                <label
+                  class="form-check-label"
+                  :for="`transactionCheck${data.index}`"
+                ></label>
+              </div>
+            </td>
+            <td>{{ data.work_order_number }}</td>
+            <td>{{ data.owner }}</td>
+            <td>{{ data.client }}</td>
+            <td>{{ data.name }}</td>
+            <td align="right">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(data.revenu) }}</td>
+            <td align="center">{{ data.start_date }}</td>
+            <td>{{ data.progress }}</td>
+            <td class>
+              <span class=" badge badge-pill badge-done"
+              :class="{
+                  'badge-progress': `${data.status}` === 'En cours',
+                  'badge-waiting': `${data.status}` === 'A preparer',
+                }"
+              >{{ data.status }}</span
+              >
+            </td>          
+            <td>
+              <!-- Button trigger modal -->
+              <button
+                type="button"
+                class="btn btn-primary btn-sm btn-rounded"
+                @click="$bvModal.show(data.index)"
+              >
+                View Details
+              </button>
+            </td>
+            <!-- 
+            <b-modal :id="data.index" title="Détail du chantier" centered>
+            </b-modal>
+            -->
+            </template>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end table -->
+  </Loader>
+</template>
+
+<style scoped>
+.badge-done {
+  width: 80px;
+  color: #34c38f;
+  background-color: rgba(52, 195, 143, 0.18); }
+  .badge-done:hover, .badge-done:focus {
+  color: #ffffff;
+  background-color: rgba(52, 195, 143, 1); }
+  
+  .badge-progress {
+  color: #0084f7;
+  background-color: rgba(80, 165, 241, 0.18); }
+  .badge-progress:hover, .badge-progress:focus {
+    color: #ffffff;
+    background-color: rgb(0, 132, 248,0.80); }
+
+.badge-waiting {
+  color: rgb(128, 128, 128);
+  background-color: rgba(241, 180, 76, 0.4); }
+  .badge-waiting:hover, .badge-waiting:focus {
+    color: #ffffff;
+    text-decoration: none;
+    background-color: rgba(241, 180, 76, 0.4); }
+
+.badge-soft-success {
+  color: #34c38f;
+  background-color: rgba(52, 195, 143, 0.18); }
+  .badge-soft-success[href]:hover, .badge-soft-success[href]:focus {
+    color: #ffffff;
+    text-decoration: none;
+    background-color: rgba(52, 195, 143, 0.4); }
+
+
+
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+th {
+   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+</style>

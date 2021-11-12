@@ -17,7 +17,6 @@ import "@andresouzaabreu/vue-data-table/dist/DataTable.css";
 import DataTable from "@andresouzaabreu/vue-data-table";
 
 
-
 import store from '@/state/store'
 import i18n from './i18n'
 

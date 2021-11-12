@@ -3,9 +3,6 @@ import Layout from "../../layouts/main";
 import appConfig from "@/app.config";
 import PageHeader from "@/components/page-header";
 
-import { getFirebaseBackend } from "@/firebaseUtils";
-import "firebase/firestore";
-
 /**
  * Dashboard Component
  */
@@ -26,18 +23,7 @@ export default {
      };
   },
   created(){
-    console.log("created")
-    var db = getFirebaseBackend().getFirestore();
-    db.collection("case")
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            console.log(doc.id, " => ", doc.data());
-          });
-         })
-        .catch((error) => {
-          console.log("Error getting documents: ", error);
-        });   
+    
   }
 };
 </script>

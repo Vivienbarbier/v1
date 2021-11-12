@@ -30,8 +30,8 @@ export default {
   },
   data() {
     return {
-      email: "admin@themesbrand.com",
-      password: "123456",
+      email: "",
+      password: "",
       submitted: false,
       authError: null,
       tryingToLogIn: false,
