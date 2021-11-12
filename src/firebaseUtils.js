@@ -61,9 +61,6 @@ class FirebaseAuthBackend {
      */
      getFirestore = () => {
         var db = firebase.firestore();
-        if (process.env.NODE_ENV  === "development"){ 
-            db.useEmulator('localhost',8083);
-        }
         return db;        
     }
     

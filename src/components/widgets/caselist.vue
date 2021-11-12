@@ -162,21 +162,12 @@ export default {
                 }"
               >{{ data.status }}</span
               >
-            </td>          
+            </td> 
             <td>
-              <!-- Button trigger modal -->
-              <button
-                type="button"
-                class="btn btn-primary btn-sm btn-rounded"
-                @click="$bvModal.show(data.index)"
-              >
-                View Details
-              </button>
+              <router-link :to="{ name: 'case-detail', params: { caseId: data.id }}">
+                <i class="mdi mdi-dots-horizontal font-size-18"></i>           
+              </router-link>
             </td>
-            <!-- 
-            <b-modal :id="data.index" title="Détail du chantier" centered>
-            </b-modal>
-            -->
             </template>
           </tr>
         </tbody>

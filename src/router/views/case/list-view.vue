@@ -30,13 +30,10 @@ export default {
       filter: null,
       items: [
         {
-          text: "Chantiers",
-          href: "/cases",
-        },
-        {
-          text: "Liste",
+          text: "Liste des chantiers",
+          href: "/case",
           active: true,
-        },
+        }
       ],     
       caselist: [],
       headers : [
@@ -48,7 +45,7 @@ export default {
             { name: "start_date",         label : "Début",              sortable : true,  filtrable : true,  style :"" },
             { name: "progress",           label : "Avancement",         sortable : true,  filtrable : true,  style :"" },
             { name: "status",             label : "Status",             sortable : true,  filtrable : true,  style :"" },
-            { name: "action",             label : "",                   sortable : false, filtrable : false, style :"" }
+            { name: "action",             label : "",                   sortable : false, filtrable : false, style :"width:50px" }
       ],
     }
   },
