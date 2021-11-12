@@ -39,6 +39,17 @@ export default {
         },
       ],     
       caselist: [],
+      headers : [
+            { name: "work_order_number",  label : "N° Cmd",             sortable : true,  filtrable : true,  style :"" }, 
+            { name: "owner",              label : "Responsable",        sortable : true,  filtrable : true,  style :"" },
+            { name: "client",             label : "Client",             sortable : true,  filtrable : true,  style :"" },
+            { name: "name",               label : "Nom du chantier",    sortable : true,  filtrable : true,  style :"width:400px" },
+            { name: "revenu",             label : "Chiffre d'affaires", sortable : true,  filtrable : true,  style :"" },
+            { name: "start_date",         label : "Début",              sortable : true,  filtrable : true,  style :"" },
+            { name: "progress",           label : "Avancement",         sortable : true,  filtrable : true,  style :"" },
+            { name: "status",             label : "Status",             sortable : true,  filtrable : true,  style :"" },
+            { name: "action",             label : "",                   sortable : false, filtrable : false, style :"" }
+      ],
     }
   },
   created() {
@@ -101,7 +112,7 @@ export default {
               </div>
               <!-- end col-->
             </div>            
-            <CaselistView  :caselist="caselist" :filter="filter" />
+            <CaselistView  :caselist="caselist" :headers="headers" :filter="filter" />
             <!-- Pagination 
             <ul class="pagination pagination-rounded justify-content-end mb-2">
               <li class="page-item disabled">

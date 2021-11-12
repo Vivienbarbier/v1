@@ -53,18 +53,26 @@ export default {
         this.table = this.caselist;
       }else{
         this.table = [];
-        //console.log(JSON.stringify(this.caselist))
+        const filter =  this.filter.toLowerCase();
         for (const i in this.caselist) {
           const c = this.caselist[i];
-          this.filter = this.filter.toLowerCase();
-          if(  (c.name !== null               && c.name.toLowerCase().includes(this.filter)             )
-            || (c.work_order_number !== null  && c.work_order_number.toLowerCase().includes(this.filter)) 
-            || (c.owner !== null              && c.owner.toLowerCase().includes(this.filter)            )
-            || (c.client !== null             && c.client.toLowerCase().includes(this.filter)           )
-            || (c.start_date !== null         && c.start_date.toLowerCase().includes(this.filter)       )
-            || (c.status !== null             && c.status.toLowerCase().includes(this.filter)           )
-             ){
-            this.table.push(c);
+          for( const h in this.headers) {
+            const head = this.headers[h]
+            if (head.filtrable){
+              if (c[head.name] !== null){
+                if(typeof c[head.name] === "string"){
+                  if (c[head.name].toLowerCase().includes(filter)){
+                    this.table.push(c);
+                    break;
+                  }
+                }else if(typeof c[head.name] === "number"){
+                  if (c[head.name].toString().includes(filter)){
+                    this.table.push(c);
+                    break;
+                  }
+                }             
+              }
+            }
           }
         }
       }
@@ -90,7 +98,7 @@ export default {
   <Loader :loading="updating">
     <div class="table-responsive mb-0">
       <table class="table align-middle table-nowrap">
-        <thead class="table-light">
+        <thead class="table-light">          
           <tr>
             <th style="width: 30px">
               <div class="form-check font-size-16 align-middle">
@@ -101,7 +109,17 @@ export default {
                 />
               </div>
             </th>
-            <th @click="sort('work_order_number')" class="width:100px">N° Cmd<span style="float:right;"><i :class="[((this.currentSort == 'work_order_number') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
+            <template v-for="head in headers" >
+              <th @click="sort(head.name)" :key="head.name" :style="head.style">
+                {{head.label}}
+                <span style="float:right;">
+                  <i :class="[((currentSort == head.name) ? (currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']">
+                  </i>
+                </span>
+              </th>
+            </template>            
+            <!--<th v-for="head in headers" :key="head.name" :class="head.class">{{head.label}}</th> -->
+            <!--<th @click="sort('work_order_number')" class="width:100px">N° Cmd<span style="float:right;"><i :class="[((this.currentSort == 'work_order_number') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
             <th @click="sort('owner')" >Resp.<span style="float:right;"><i :class="[((this.currentSort == 'owner') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
             <th @click="sort('client')">Client<span style="float:right;"><i :class="[((this.currentSort == 'client') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
             <th @click="sort('name')"  style="width:400px">Nom du chantier<span style="float:right;"><i :class="[((this.currentSort == 'name') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
@@ -110,6 +128,7 @@ export default {
             <th @click="sort('progress')">Avancement<span style="float:right;"><i :class="[((this.currentSort == 'progress') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
             <th @click="sort('status')">Status<span style="float:right;"><i :class="[((this.currentSort == 'status') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
             <th></th> 
+            -->
           </tr>
         </thead>
         <tbody>
