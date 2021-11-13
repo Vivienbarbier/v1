@@ -9,6 +9,7 @@ import vco from "v-click-outside"
 import router from './router/index'
 import Scrollspy from 'vue2-scrollspy';
 import VueSweetalert2 from 'vue-sweetalert2';
+import Editable from '../src/helpers/Editable.vue'
 
 import "../src/design/app.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -60,6 +61,7 @@ Vue.use(VueGoogleMaps, {
   installComponents: true
 })
 Vue.component('apexchart', VueApexCharts)
+Vue.component('editable', Editable)
 
 new Vue({
   router,
