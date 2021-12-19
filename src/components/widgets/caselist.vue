@@ -82,13 +82,41 @@ export default {
         this.currentSortDir = this.currentSortDir==='asc'?'desc':'asc';
       }
       this.currentSort = s;
-      this.table.sort((a,b) => {
-        let modifier = 1;
-        if(this.currentSortDir === 'desc') modifier = -1;
-        if(a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-        if(a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-        return 0;
-      });
+      if (this.currentSort === "start_date"){
+      
+        this.table.sort((a,b) => {
+          let modifier = 1;
+          if(this.currentSortDir === 'desc') modifier = -1;        
+          if (a[this.currentSort] === null || a[this.currentSort] ==="-" ) return -1 * modifier;
+          if (b[this.currentSort] === null || b[this.currentSort] ==="-" ) return 1 * modifier;
+
+          var dateAParts = a[this.currentSort].split("/");
+          var dateBParts = b[this.currentSort].split("/");
+          if (dateAParts[2] === undefined ) return -1 * modifier;
+          if (dateBParts[2] === undefined ) return 1 * modifier;
+
+          // month is 0-based, that's why we need dataParts[1] - 1       
+          var dateAObject = new Date(+dateAParts[2], dateAParts[1] - 1, +dateAParts[0]); 
+          var dateBObject = new Date(+dateBParts[2], dateBParts[1] - 1, +dateBParts[0]); 
+          if(dateAObject < dateBObject) return -1 * modifier;
+          if(dateAObject > dateBObject) return 1 * modifier;
+          return 0;
+        });        
+      }else if (typeof this.table[0][this.currentSort] === "string"){
+        this.table.sort((a,b) => {
+          let modifier = 1;
+          if(this.currentSortDir === 'desc') modifier = -1;
+          return (a[this.currentSort].localeCompare(b[this.currentSort]) * modifier);
+        });
+      }else{
+        this.table.sort((a,b) => {
+          let modifier = 1;
+          if(this.currentSortDir === 'desc') modifier = -1;
+          if(a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+          if(a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          return 0;
+        });
+      }
     }
   }
 };
@@ -99,24 +127,20 @@ export default {
     <div class="table-responsive mb-0">
       <table class="table align-middle table-nowrap">
         <thead class="table-light">          
-          <tr>
-            <th style="width: 30px">
-              <div class="form-check font-size-16 align-middle">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="transactionCheck01"
-                />
-              </div>
-            </th>
+          <tr>            
             <template v-for="head in headers" >
-              <th @click="sort(head.name)" :key="head.name" :style="head.style">
-                {{head.label}}
-                <span style="float:right;">
-                  <i :class="[((currentSort == head.name) ? (currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']">
-                  </i>
-                </span>
-              </th>
+              <template v-if="head.sortable">
+                <th @click="sort(head.name)" :key="head.name" :style="head.style">
+                  {{head.label}}
+                  <span style="float:right;">
+                    <i :class="[((currentSort == head.name) ? (currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']">
+                    </i>
+                  </span>
+                </th>
+              </template>  
+              <template v-else>
+               <th :key="head.name" :style="head.style"></th>
+              </template>
             </template>            
             <!--<th v-for="head in headers" :key="head.name" :class="head.class">{{head.label}}</th> -->
             <!--<th @click="sort('work_order_number')" class="width:100px">N° Cmd<span style="float:right;"><i :class="[((this.currentSort == 'work_order_number') ? (this.currentSortDir == 'asc' ? 'fa-arrow-up' : 'fa-arrow-down') : ''), 'fa']"></i></span></th>
@@ -133,42 +157,33 @@ export default {
         </thead>
         <tbody>
           <tr v-for="data in table" :key="data.index">
-            <template v-if="data.progress=1">
-            <td>
-              <div class="form-check font-size-16">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  :id="`transactionCheck${data.index}`"
-                />
-                <label
-                  class="form-check-label"
-                  :for="`transactionCheck${data.index}`"
-                ></label>
-              </div>
-            </td>
             <td>{{ data.work_order_number }}</td>
             <td>{{ data.owner }}</td>
             <td>{{ data.client }}</td>
             <td>{{ data.name }}</td>
             <td align="right">{{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(data.revenu) }}</td>
             <td align="center">{{ data.start_date }}</td>
-            <td>{{ data.progress }}</td>
-            <td class>
-              <span class=" badge badge-pill badge-done"
+            <td align="center">{{ (data.progress*100) }}%</td>
+            <td align="center">
+              <span class=" badge badge-pill badge-done" 
               :class="{
-                  'badge-progress': `${data.status}` === 'En cours',
-                  'badge-waiting': `${data.status}` === 'A preparer',
+                  'badge-qualify':      `${data.status}` === 'qualify',
+                  'badge-planify':      `${data.status}` === 'planify',
+                  'badge-prepare':      `${data.status}` === 'prepare',
+                  'badge-execute':      `${data.status}` === 'execute',
+                  'badge-wip':          `${data.status}` === 'wip',
+                  'badge-closing':      `${data.status}` === 'closing',
+                  'badge-closed':       `${data.status}` === 'closed',
+
                 }"
-              >{{ data.status }}</span
+              >{{ $t("casestatus."+data.status) }}</span
               >
             </td> 
-            <td>
+            <td align="center">
               <router-link :to="{ name: 'case-detail', params: { bu:data.business_unit, caseId: data.id }}">
                 <i class="mdi mdi-dots-horizontal font-size-18"></i>           
               </router-link>
             </td>
-            </template>
           </tr>
         </tbody>
       </table>
@@ -178,36 +193,64 @@ export default {
 </template>
 
 <style scoped>
-.badge-done {
+.badge-qualify {
   width: 80px;
-  color: #34c38f;
-  background-color: rgba(52, 195, 143, 0.18); }
-  .badge-done:hover, .badge-done:focus {
+  color: #5f6462;
+  background-color: rgba(196, 35, 35, 0.18); }
+  .badge-qualify:hover, .badge-qualify:focus {
+  color: #ffffff;
+  background-color: rgba(196, 35, 35, 1); }
+  
+.badge-planify {
+  width: 80px;
+  color: #5f6462;
+  background-color: rgba(48, 70, 192, 0.18); }
+  .badge-planify:hover, .badge-planify:focus {
+  color: #ffffff;
+  background-color:  rgba(48, 70, 192, 1); }
+
+.badge-prepare {
+  width: 80px;
+  color: #5f6462;
+  background-color: rgba(197, 181, 38, 0.18); }
+  .badge-prepare:hover, .badge-prepare:focus {
   color: #ffffff;
   background-color: rgba(52, 195, 143, 1); }
-  
-  .badge-progress {
-  color: #0084f7;
-  background-color: rgba(80, 165, 241, 0.18); }
-  .badge-progress:hover, .badge-progress:focus {
-    color: #ffffff;
-    background-color: rgb(0, 132, 248,0.80); }
 
-.badge-waiting {
-  color: rgb(128, 128, 128);
-  background-color: rgba(241, 180, 76, 0.4); }
-  .badge-waiting:hover, .badge-waiting:focus {
-    color: #ffffff;
-    text-decoration: none;
-    background-color: rgba(241, 180, 76, 0.4); }
 
-.badge-soft-success {
-  color: #34c38f;
-  background-color: rgba(52, 195, 143, 0.18); }
-  .badge-soft-success[href]:hover, .badge-soft-success[href]:focus {
-    color: #ffffff;
-    text-decoration: none;
-    background-color: rgba(52, 195, 143, 0.4); }
+.badge-execute {
+  width: 80px;
+  color: #5f6462;
+  background-color: rgba(74, 52, 195, 0.18); }
+  .badge-execute:hover, .badge-execute:focus {
+  color: #ffffff;
+  background-color: rgba(74, 52, 195, 1); }
+
+.badge-wip {
+  width: 80px;
+  color: #5f6462;
+  background-color: rgba(109, 221, 5, 0.50); }
+  .badge-wip:hover, .badge-wip:focus {
+  color: #ffffff;
+  background-color: rgba(109, 221, 5, 1); }
+
+.badge-closing {
+  width: 80px;
+  color: #5f6462;
+  background-color: rgba(157, 195, 52, 0.18); }
+  .badge-closing:hover, .badge-closing:focus {
+  color: #ffffff;
+  background-color: rgba(157, 195, 52, 1); }
+
+.badge-closed {
+  width: 80px;
+  color: #5f6462;
+  background-color: rgba(57, 58, 57, 0.18); }
+  .badge-closed:hover, .badge-closed:focus {
+  color: #ffffff;
+  background-color: rgba(57, 58, 57, 1); }
+
+
 
 
 
@@ -216,14 +259,16 @@ table {
   table-layout: fixed;
 }
 th {
-   overflow: hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  background-color: rgb(228, 228, 228); 
 }
 td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
 
+}
+tr:nth-child(even) {background-color: #f2f2f2;}
 </style>

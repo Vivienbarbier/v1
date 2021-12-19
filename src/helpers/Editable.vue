@@ -1,7 +1,10 @@
 <template>
     <div>
-        <div v-show="!editing" @dblclick="setEditing()">
-            <label> {{item}} </label>
+        <div v-show="!editing">            
+            {{item}}
+               <span style="float:right;">
+                <i class="mdi mdi-pencil" @click="setEditing()"></i>
+                </span>
         </div>
         <div v-focus="editing" v-show="editing" >
             <a  id="inline-username"    
@@ -10,32 +13,20 @@
                 data-title="Enter username" 
                 class="editable editable-click editable-open" 
                 style="display: none;">
-            </a>
-            <span class="editable-container editable-inline" style="">
-                <div>
-                    <form class="form-inline editableform" style="">
-                        <div class="control-group form-group">
-                            <div id="container">
-                                <div id="inputLeft">
-                                    <div class="editable-input">
-                                        <input type="text" v-model="val" class="form-control form-control-sm" style="padding-right: 24px;">
-                                    </div>
-                                </div>
-                                <div id="buttonsRight">
-                                    <div class="editable-buttons">
-                                        <button type="button" class="btn btn-success btn-xs" @click="update()">
-                                            <i class="mdi mdi-check"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-xs" @click="cancelEditing()">
-                                            <i class="mdi mdi-close"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+            </a>         
+            <div>
+                <div class="hstack"  >
+                    <div style="">
+                        <input type="text" v-model="val" class="form-control form-control-sm" style="padding-right: 24px;" v-on:keyup.enter="update()" v-on:keyup.esc="cancelEditing()">
+                    </div>
+                    <button type="button" class="btn btn-success btn-xs " @click="update()">
+                        <i class="mdi mdi-check"></i>
+                    </button>
+                    <button type="button" class="btn btn-dark btn-xs" @click="cancelEditing()">
+                        <i class="mdi mdi-close"></i>
+                    </button>
                 </div>
-            </span>
+            </div>
         </div>
     </div>
 </template>
@@ -43,12 +34,13 @@
 <style scoped>
 label {
     width: 100%;
-    border: 1px solid grey
-    
+    font-weight: 600;
+    color: #495057
 
     /* otherwise empty cell click event does not fire */
 }
 div {
+    width: 100%;
     height: 100%;
     border: 1px solid transparent;
 }
@@ -57,16 +49,11 @@ div {
   width: 100%;
   display: flex;
 }
-#inputLeft {
-  width: 100%;
-}
-#buttonsRight {
-  width: 6em;
-}
 .btn {
-    border-radius: 0.20rem;
-    margin: 3px;
+    border-radius: 1rem;
+    margin: 1px;
     font-size: 0.5rem;
+    opacity: 0.8;
 }
 </style>
 
@@ -89,17 +76,14 @@ export default {
     },
     methods: {
         setEditing() {
-            console.log("setEditing");
             this.val = this.item;
             this.editing = true;
         },
         update(){
-            console.log("update");
             this.editing = false;
             this.$emit('updated', this.val);
         },
         cancelEditing(){
-            console.log("cancelEditing");
             this.val = this.item;
             this.editing = false;
         },

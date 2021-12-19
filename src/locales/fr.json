@@ -80,5 +80,14 @@
             "text": "Paramètres"
         }
         
-    }
+    },
+    "casestatus" : {
+        "qualify" : "A étudier",
+        "planify" : "A planifier",
+        "prepare" : "A préparer",
+        "execute" : "A réaliser",
+        "wip" : "En cours",
+        "closing" : "A cloturer",
+        "closed" : "Terminé"
+      }
 }

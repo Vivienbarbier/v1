@@ -4,8 +4,7 @@
 import Layout from "../../layouts/main";
 import PageHeader from "@/components/page-header";
 import { getFirebaseBackend } from "@/firebaseUtils";
-import Editable from '@/helpers/Editable';
-
+import dataBox from '@/helpers/data-box';
 import appConfig from "@/app.config";
 import "firebase/firestore";
 
@@ -23,7 +22,7 @@ export default {
       },
     ],
   },
-  components: { Layout, PageHeader, Editable},
+  components: { Layout, PageHeader, dataBox},
   data() {
     return {
       content: 'hello world2',
@@ -38,8 +37,8 @@ export default {
           text: "Détail",
           active: true,
         }
-      ],
-      caseDoc : null,   
+      ],      
+      caseDoc : null,     
      }
   },
   mounted(){
@@ -58,65 +57,43 @@ export default {
             this.rows[row][col] = newValue;
             this.updated = true;
         },
-        onAdd: function() {
-            console.log('add');
+      callMethod(name) {
+        console.log(name)
+        console.log(this[name])
+        
+        return this[name];
+        //this.clickShowDeleteAcceptForm()
 
-            var newRow = {
-                nl: '',
-                en: '',
-            }
-            console.log(newRow);
-        },
-        onDelete: function(index, event) {
-          console.lof(index, event)
-            // ... implement your delete function
-        },
-      }
-    }
+    },
+  }
+}
 </script>
 
 <template>
   <Layout>
     <PageHeader :title="title" :items="items" />
-    <editable v-model="content"></editable>
-    <h1>{{ (caseDoc !== null) ? caseDoc.contract.name  : ""}}</h1> 
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Description du chantier</h4>
-        <div class="row">
-          <div class="col-md-6">1</div>
-          <div class=" col-md-6 hstack gap-1">
-            <label>sdkjflsdjf</Label>
-            <editable class="form-control me-auto" v-model="content"></editable>
+    <template v-if="caseDoc !== null">
+      <h5>{{caseDoc.contract}}</h5>
+      <h1>{{ (caseDoc !== null) ? caseDoc.contract.name  : ""}}</h1> 
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Description du chantier</h4>
+          <div class="row">
+            <dataBox  label="Revenu"            v-model=caseDoc.contract.revenu         />
+            <dataBox  label="Date de signature" v-model=caseDoc.contract.start_date     />
+            <dataBox  label="Nom du chantier"   v-model=caseDoc.contract.name           />
+            <dataBox  label="client"            v-model=caseDoc.contract.client         />
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-6">3</div>
-          <div class="col-md-6">4</div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">5</div>
-          <div class="col-md-6">.col-md-6</div>
-        </div>
       </div>
-    </div>
+    </template>
   </Layout>
 </template>
 
 
 <style scoped>
-#boxContainer {
-  height: 100%;
-  width: 50%;
-  display: flex;
-      background: red;
+.databox{
+  border-bottom: solid 1px grey ; 
 }
-#nameLeft {
-  width: 12em;
-  background: blue;
-}
-#dataRight {
-  width: 100%;
-    background: green;
-}
+
 </style>

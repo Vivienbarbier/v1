@@ -37,15 +37,15 @@ export default {
       ],     
       caselist: [],
       headers : [
-            { name: "work_order_number",  label : "N° Cmd",             sortable : true,  filtrable : true,  style :"" }, 
-            { name: "owner",              label : "Responsable",        sortable : true,  filtrable : true,  style :"" },
-            { name: "client",             label : "Client",             sortable : true,  filtrable : true,  style :"" },
-            { name: "name",               label : "Nom du chantier",    sortable : true,  filtrable : true,  style :"width:400px" },
-            { name: "revenu",             label : "Chiffre d'affaires", sortable : true,  filtrable : true,  style :"" },
-            { name: "start_date",         label : "Début",              sortable : true,  filtrable : true,  style :"" },
-            { name: "progress",           label : "Avancement",         sortable : true,  filtrable : true,  style :"" },
-            { name: "status",             label : "Status",             sortable : true,  filtrable : true,  style :"" },
-            { name: "action",             label : "",                   sortable : false, filtrable : false, style :"width:50px" }
+            { name: "work_order_number",  label : "WO",                 sortable : true,  filtrable : true,  align: "center", style :"width:9em" }, 
+            { name: "owner",              label : "Responsable",        sortable : true,  filtrable : true,  align: "center", style :"" },
+            { name: "client",             label : "Client",             sortable : true,  filtrable : true,  align: "right",  style :"" },
+            { name: "name",               label : "Nom du chantier",    sortable : true,  filtrable : true,  align: "right",  style :"width:25em" },
+            { name: "revenu",             label : "Chiffre d'affaires", sortable : true,  filtrable : true,  align: "center", style :"" },
+            { name: "start_date",         label : "Début",              sortable : true,  filtrable : true,  align: "center", style :"width:8em" },
+            { name: "progress",           label : "Avancement",         sortable : true,  filtrable : true,  align: "left",   style :"width:8em" },
+            { name: "status",             label : "Status",             sortable : true,  filtrable : true,  align: "center", style :"width:7em" },
+            { name: "action",             label : "",                   sortable : false, filtrable : false, align: "center", style :"width:3em" }
       ],
     }
   },
@@ -69,7 +69,7 @@ export default {
                 client: c.client,
                 start_date: c.start_date,
                 revenu : c.revenu,
-                progress : (c.progress)*100+"%",
+                progress : c.progress,
                 status : c.status
               })
             });
