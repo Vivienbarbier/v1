@@ -3,7 +3,7 @@
 
 import Layout from "../../layouts/main";
 import PageHeader from "@/components/page-header";
-import CaselistView from '@/components/widgets/caselist'
+import CaselistView from '@/router/views/case/case-list'
 
 import appConfig from "@/app.config";
 import { getFirebaseBackend } from "@/firebaseUtils";
@@ -34,7 +34,8 @@ export default {
           href: "/case",
           active: true,
         }
-      ],     
+      ],
+      updating : true,     
       caselist: [],
       headers : [
             { name: "work_order_number",  label : "WO",                 sortable : true,  filtrable : true,  align: "center", style :"width:9em" }, 
@@ -50,37 +51,40 @@ export default {
     }
   },
   created() {
-    var count = 0;
-    var db = getFirebaseBackend().getFirestore();
-    db.collection("case")
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            const list = doc.data().list;
-            list.forEach((c) => {
-              this.caselist.push({
-                id : c.id,
-                business_unit: doc.id,
-                index : ++count,
-                work_order_number : c.work_order_number,
-                imputation_code   : c.imputation_code,
-                owner : c.owner,
-                name : c.name,
-                client: c.client,
-                start_date: c.start_date,
-                revenu : c.revenu,
-                progress : c.progress,
-                status : c.status
-              })
-            });
-          });
-         })
-        .catch((error) => {
-          console.log("Error getting documents: ", error);
-        });   
+    this.load_case_list();
   },
   methods: {
-   
+    load_case_list(){
+      var count = 0;
+      var db = getFirebaseBackend().getFirestore();
+      db.collection("case")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const list = doc.data().list;
+          list.forEach((c) => {
+            this.caselist.push({
+              id : c.id,
+              business_unit: doc.id,
+              index : ++count,
+              work_order_number : c.work_order_number,
+              imputation_code   : c.imputation_code,
+              owner : c.owner,
+              name : c.name,
+              client: c.client,
+              start_date: c.start_date,
+              revenu : c.revenu,
+              progress : c.progress,
+              status : c.status
+            })
+          });
+        });
+        this.updating = false;
+       })
+      .catch((error) => {
+        console.log("Error getting documents: ", error);
+      }); 
+    }
   },
 };
 </script>
@@ -103,14 +107,14 @@ export default {
               </div>
               <div class="col-sm-8">
                 <div class="text-sm-end">
-                  <button type="button" class="btn btn-success btn-rounded mb-2 me-2">
+                  <button type="button" class="pill btn btn-success btn-rounded mb-2 me-2 ">
                     <i class="mdi mdi-plus me-1"></i> Add New Order
                   </button>
                 </div>
               </div>
               <!-- end col-->
             </div>            
-            <CaselistView  :caselist="caselist" :headers="headers" :filter="filter" />
+            <CaselistView  :caselist="caselist" :headers="headers" :filter="filter" :updating="updating" />
             <!-- Pagination 
             <ul class="pagination pagination-rounded justify-content-end mb-2">
               <li class="page-item disabled">
@@ -150,3 +154,12 @@ export default {
     <!-- end row -->
   </Layout>
 </template>
+
+<style scoped>
+.pill {
+  border-radius: 30px;
+  color: #fff;
+  background-color: #34c38f;
+  border-color: #34c38f;
+}
+</style>

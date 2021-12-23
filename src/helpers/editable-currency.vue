@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-show="!editing">            
-            {{item}}
+            {{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(item)  }}
                <span style="float:right;">
                 <i class="mdi mdi-pencil" @click="setEditing()"></i>
                 </span>
@@ -76,12 +76,12 @@ export default {
     },
     methods: {
         setEditing() {
-            this.val = this.item;
+            this.val = Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(this.item);
             this.editing = true;
         },
         update(){
             this.editing = false;
-            this.$emit('updated', this.val);
+            this.$emit('updated',  this.val.replace('€','').replaceAll(/\s/g,'').replace(",","."));
         },
         cancelEditing(){
             this.val = this.item;
