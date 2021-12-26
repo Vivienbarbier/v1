@@ -2,8 +2,8 @@
     <div>
         <div v-show="!editing">            
             {{ Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(item)  }}
-               <span style="float:right;">
-                <i class="mdi mdi-pencil" @click="setEditing()"></i>
+                <span v-if="editable" style="float:right;">
+                    <i class="mdi mdi-pencil" @click="setEditing()"></i>
                 </span>
         </div>
         <div v-focus="editing" v-show="editing" >
@@ -66,7 +66,7 @@ export default {
         val: '',
         editing: false
     }),
-    props: ['item'],
+    props: ['item','editable'],
     model: {
         prop: 'item',
         event: 'updated'

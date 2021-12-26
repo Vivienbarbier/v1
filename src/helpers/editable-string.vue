@@ -2,7 +2,7 @@
     <div>
         <div v-show="!editing">            
             {{item}}
-               <span style="float:right;">
+               <span v-if="editable" style="float:right;">
                 <i class="mdi mdi-pencil" @click="setEditing()"></i>
                 </span>
         </div>
@@ -65,7 +65,16 @@ export default {
         val: '',
         editing: false
     }),
-    props: ['item'],
+    props: {
+        item: {
+            type: String,
+            default: "-"
+        },
+        editable : {
+            type: Boolean,
+            default: true
+        },
+    },
     model: {
         prop: 'item',
         event: 'updated'
