@@ -27,7 +27,7 @@ export const menuItems = [
             {
                 id: 41,
                 label: "menuitems.case.list.create",
-                link: "/",
+                link: "/case/create",
                 parentId: 37
             },
             {

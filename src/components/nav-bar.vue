@@ -56,9 +56,6 @@ export default {
     this.flag = this.value.flag;
   },
    methods: {
-    toto(){
-      console.log(store.getters['auth/getUserName']);
-    },
     toggleMenu() {
       this.$parent.toggleMenu();
     },
@@ -156,17 +153,6 @@ export default {
           </div>
         </form>        
       </div>
-      <div>
-        <button
-          id="horizontal-menu-btn"
-          type="button"
-          class="btn btn-sm px-3 font-size-16 header-item"
-          @click="toto"
-        >
-          <i class="fa fa-fw fa-bars"></i>
-        </button>
-      </div>
-
       <div class="d-flex">
         <b-dropdown
           class="d-inline-block d-lg-none ms-2"

@@ -107,9 +107,11 @@ export default {
               </div>
               <div class="col-sm-8">
                 <div class="text-sm-end">
-                  <button type="button" class="pill btn btn-success btn-rounded mb-2 me-2 ">
-                    <i class="mdi mdi-plus me-1"></i> Add New Order
-                  </button>
+                  <router-link :to="{ name: 'case-create'}">
+                    <button type="button" class="pill btn btn-success btn-rounded mb-2 me-2 ">
+                     <i class="mdi mdi-plus me-1"></i> Add New Order
+                    </button>
+                  </router-link>
                 </div>
               </div>
               <!-- end col-->

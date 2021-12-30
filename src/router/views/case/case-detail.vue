@@ -51,6 +51,10 @@ export default {
         situation : false,
         exercices : false
       },
+      editFlag:{
+        budget : false,
+        prev : false,
+      },
       caseDoc : null,
       editor: ClassicEditor,
       status_datalist : {
@@ -204,57 +208,79 @@ export default {
                     <table class="table center table-nowrap ">
                       <tr>
                          <th></th>
-                         <th>Budget d'Exécution</th>
+                         <th>Budget d'Exécution<i class="mdi mdi-pencil" @click="editFlag.budget = !editFlag.budget"/>
+                         </th>
                          <th>Consommé à date</th>
-                         <th>Prévision à Terminaison</th>
+                         <th>Prévision à Terminaison<i class="mdi mdi-pencil" @click="editFlag.prev = !editFlag.prev"/></th>
                       </tr>
                       <tr>
-                         <td>MO Agents</td>
-                         <td> {{ this.formatCurrency(caseDoc.conso.workforce, 'EUR',0)  }} </td>
-                         <td> {{ this.formatCurrency(caseDoc.conso.workforce, 'EUR',0)  }} </td>
-                         <td> {{ this.formatCurrency(caseDoc.prev.workforce, 'EUR',0)   }} </td>
+                        <td style="padding-left: 1em;">MO Agents</td>
+                        <td v-if="!editFlag.budget"> {{ this.formatCurrency(caseDoc.budget.workforce, 'EUR',0) }} </td>
+                        <td v-else style="text-align:center; ">
+                          <input  type="number" step="any" v-model="caseDoc.budget.workforce" class="form-control form-control-sm editable-value-in-tab ">
+                        </td>
+                        <td> {{ this.formatCurrency(caseDoc.conso.workforce, 'EUR',0)  }} </td>
+                        <td v-if="!editFlag.prev"> {{ this.formatCurrency(caseDoc.prev.workforce, 'EUR',0)   }} </td>
+                        <td v-else style="text-align:center; ">
+                          <input  type="number" step="any" v-model="caseDoc.prev.workforce" class="form-control form-control-sm editable-value-in-tab ">
+                        </td>
                       </tr>
                        <tr>
-                         <td>MO Etudes</td>
+                         <td style="padding-left: 1em;">MO Etudes</td>
                          <td> - €</td>
                          <td> - €</td>
                          <td> - €</td>                
                       </tr>
                       <tr>
-                        <td>Matériel</td>
-                        <td> {{  this.formatCurrency(caseDoc.budget.material, 'EUR',0) }} </td>
+                        <td style="padding-left: 1em;">Matériel</td>
+                        <td v-if="!editFlag.budget"> {{ this.formatCurrency(caseDoc.budget.material, 'EUR',0) }} </td>
+                        <td v-else>
+                          <input  type="number" step="any" v-model="caseDoc.budget.material" class="form-control form-control-sm editable-value-in-tab ">
+                        </td>
                         <td> {{  this.formatCurrency(caseDoc.conso.material, 'EUR',0)  }} </td>
-                        <td> {{  this.formatCurrency(caseDoc.prev.material, 'EUR',0)   }} </td>
+                        <td v-if="!editFlag.prev"> {{ this.formatCurrency(caseDoc.prev.material, 'EUR',0)   }} </td>
+                        <td v-else>
+                          <input  type="number" step="any" v-model="caseDoc.prev.material" class="form-control form-control-sm editable-value-in-tab ">
+                        </td>
                       </tr>   
                       <tr>
-                        <td>Sous-traitance</td>
-                        <td> {{  this.formatCurrency(caseDoc.budget.subcontracting, 'EUR',0) }} </td>
+                        <td style="padding-left: 1em;">Sous-traitance</td>
+                        <td v-if="!editFlag.budget"> {{ this.formatCurrency(caseDoc.budget.subcontracting, 'EUR',0) }} </td>
+                        <td v-else>
+                          <input  type="number" step="any" v-model="caseDoc.budget.subcontracting" class="form-control form-control-sm editable-value-in-tab ">
+                        </td>
                         <td> {{  this.formatCurrency(caseDoc.conso.subcontracting, 'EUR',0)  }} </td>
-                        <td> {{  this.formatCurrency(caseDoc.prev.subcontracting, 'EUR',0)   }} </td>
+                        <td v-if="!editFlag.prev"> {{ this.formatCurrency(caseDoc.prev.subcontracting, 'EUR',0)   }} </td>
+                        <td v-else>
+                          <input  type="number" step="any" v-model="caseDoc.prev.subcontracting" class="form-control form-control-sm editable-value-in-tab ">
+                        </td>
                       </tr>  
                       <tr>
-                        <td>Total</td>
-                        <td> {{  this.formatCurrency(caseDoc.budget.workforce+caseDoc.budget.material+caseDoc.budget.subcontracting, 'EUR',0) }} </td>
+                        <td style="padding-left: 0.5em;">Total</td>
+                        <td> {{  this.formatCurrency(parseFloat(caseDoc.budget.workforce)+parseFloat(caseDoc.budget.material)+parseFloat(caseDoc.budget.subcontracting), 'EUR',0) }} </td>
                         <td> {{  this.formatCurrency(caseDoc.conso.workforce+caseDoc.conso.material+caseDoc.conso.subcontracting, 'EUR',0)  }} </td>
-                        <td> {{  this.formatCurrency(caseDoc.prev.workforce+caseDoc.prev.material+caseDoc.prev.subcontracting, 'EUR',0)   }} </td>
+                        <td> {{  this.formatCurrency(parseFloat(caseDoc.prev.workforce)+parseFloat(caseDoc.prev.material)+parseFloat(caseDoc.prev.subcontracting), 'EUR',0)   }} </td>
                       </tr>
                       <tr>
-                        <td>Chiffre d'affaires</td>
+                        <td style="padding-left: 1em;">Chiffre d'affaires</td>
                         <td> {{  this.formatCurrency(caseDoc.contract.revenu, 'EUR',0) }} </td>
                         <td> - </td>
-                        <td> {{  this.formatCurrency(caseDoc.prev.revenu, 'EUR',0)   }} </td>
+                        <td v-if="!editFlag.prev"> {{ this.formatCurrency(caseDoc.prev.revenu, 'EUR',0)   }} </td>
+                        <td v-else>
+                          <input  type="number" step="any" v-model="caseDoc.prev.revenu" class="form-control form-control-sm editable-value-in-tab ">
+                        </td>
                       </tr>
                       <tr>
-                        <td>Marge (€)</td>
-                        <td> {{  this.formatCurrency( (caseDoc.contract.revenu - (caseDoc.budget.workforce+caseDoc.budget.material+caseDoc.budget.subcontracting)), 'EUR',0) }} </td>
+                        <td style="padding-left: 1em;">Marge (€)</td>
+                        <td> {{  this.formatCurrency( (parseFloat(caseDoc.contract.revenu) - (parseFloat(caseDoc.budget.workforce) +parseFloat(caseDoc.budget.material)+ parseFloat(caseDoc.budget.subcontracting))), 'EUR',0) }} </td>
                         <td> - </td>
-                        <td> {{  this.formatCurrency( (caseDoc.prev.revenu - (caseDoc.prev.workforce+caseDoc.prev.material+caseDoc.prev.subcontracting)), 'EUR',0) }} </td>
+                        <td> {{  this.formatCurrency( (parseFloat(caseDoc.prev.revenu) - (parseFloat(caseDoc.prev.workforce)+parseFloat(caseDoc.prev.material)+parseFloat(caseDoc.prev.subcontracting))), 'EUR',0) }} </td>
                       </tr> 
                       <tr>
-                        <td>Marge (%)</td>
-                        <td> {{ (((caseDoc.contract.revenu - caseDoc.budget.workforce-caseDoc.budget.material - caseDoc.budget.subcontracting)*100) / caseDoc.contract.revenu).toFixed( 1 ) }} % </td>
+                        <td style="padding-left: 1em;">Marge (%)</td>
+                        <td> {{ (((parseFloat(caseDoc.contract.revenu) - parseFloat(caseDoc.budget.workforce) - parseFloat(caseDoc.budget.material) - parseFloat(caseDoc.budget.subcontracting))*100) / parseFloat(caseDoc.contract.revenu)).toFixed( 1 ) }} % </td>
                         <td> - </td>
-                        <td> {{ (((caseDoc.prev.revenu - caseDoc.prev.workforce-caseDoc.prev.material - caseDoc.prev.subcontracting)*100) / caseDoc.prev.revenu).toFixed( 1 ) }} % </td>
+                        <td> {{ (((parseFloat(caseDoc.prev.revenu) - parseFloat(caseDoc.prev.workforce) - parseFloat(caseDoc.prev.material) - parseFloat(caseDoc.prev.subcontracting))*100) / parseFloat(caseDoc.prev.revenu)).toFixed( 1 ) }} % </td>
                       </tr>                  
                     </table>
                   </b-card-body>
@@ -318,8 +344,8 @@ export default {
                           <th></th>
                           <th>2020<br>-</th>
                           <th>2021 <br>Réalisé</th>
-                          <th>2021 <br> A réaliser</th>
-                          <th>2022+ <br> Projection</th>
+                          <th>2021 <br>A réaliser</th>
+                          <th>2022+ <br>Projection</th>
                         </tr>
                         <tr>
                           <td>Chiffre d'affaires</td>
@@ -368,10 +394,6 @@ export default {
 }
 
 
-td:first-child
-{
-    text-align: left; 
-}
 table
 {
     text-align: center; 
@@ -379,7 +401,7 @@ table
 
 td:first-child{
    text-align: left; 
-    font-weight: bold;
+   font-weight: bold;
 }
 tr:first-child{
   color: #2A3042;
@@ -391,6 +413,17 @@ tr:nth-child(9) {
   font-weight:normal;
   font-style: italic;
   background:white; 
-  }
+}
+
+.editable-value-in-tab{
+  max-width: 9em;
+  text-align: center; 
+  margin-right: auto; 
+  margin-left: auto; 
+  max-height: 1em;
+  background:#ffc40096;
+}
+
+
 
 </style>

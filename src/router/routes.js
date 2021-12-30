@@ -23,6 +23,12 @@ export default [
     props: true,
   },
   {
+    path: "/case/create",
+    name: "case-create",
+    meta: { authRequired: true },
+    component: () => import('./views/case/case-create')
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('./views/account/login'),
