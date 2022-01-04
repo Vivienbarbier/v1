@@ -109,7 +109,7 @@ export default {
                 <div class="text-sm-end">
                   <router-link :to="{ name: 'case-create'}">
                     <button type="button" class="pill btn btn-success btn-rounded mb-2 me-2 ">
-                     <i class="mdi mdi-plus me-1"></i> Add New Order
+                     <i class="mdi mdi-plus me-1"></i> Créer un chantier
                     </button>
                   </router-link>
                 </div>

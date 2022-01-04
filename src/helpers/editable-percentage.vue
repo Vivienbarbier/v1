@@ -83,7 +83,6 @@ export default {
             this.editing = false;
             var value = parseInt(this.val.replace('%','').replaceAll(/\s/g,'').replace(",","."));
             value = (value > 100) ? 100 : ((value <0 ) ? 0 : value);
-            console.log("update = ",value)
             this.$emit('updated', value); 
         },
         cancelEditing(){

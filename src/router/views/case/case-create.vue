@@ -1,32 +1,24 @@
 <script>
-
 import Layout from "../../layouts/main";
 import PageHeader from "@/components/page-header";
-import Loader from "@/components/widgets/loader";
-//import { getFirebaseBackend } from "@/firebaseUtils";
 import appConfig from "@/app.config";
+import form_entry from "./module/form-entry.vue";
+import { getFirebaseBackend } from "@/firebaseUtils";
 import "firebase/firestore";
 
 import {
-  required, 
+  required,
 } from "vuelidate/lib/validators";
 
-
 /**
- * Advanced table component
+ * Form validation component
  */
 export default {
   page: {
-    title: "Créer un chantier",
-    meta: [
-      {
-        name: "Fiche de création d'un chantier",
-        content: appConfig.description,
-      },
-    ],
+    title: "Form Validation",
+    meta: [{ name: "description", content: appConfig.description }],
   },
-  components: { Layout, PageHeader, Loader},
-
+  components: { Layout, PageHeader, form_entry },
   data() {
     return {
       content: 'Formulaire de création d\'un chantier',
@@ -42,19 +34,52 @@ export default {
           active: true,
         }
       ],
-      loaded : true,
-      caseDoc : this.createNewCase(),
-      validation : this.validationScheeme(),
-      submitform : false,
-      validations: {
-        tooltipform: {
-          fname: { required },
-          lname: { required },
-          username: { required },
-          city: { required },
-          state: { required },
-        }
-      }
+      caseDoc: this.createNewCase(),
+      submitform: false,
+      status_datalist : {
+        qualify : "Qualify",
+        planify : "Planify",
+        prepare : "Prepare",
+        execute : "Execute",
+        wip     : "En cours",
+        closing : "Closing",
+        closed  : "Closed",
+      },
+      type_datalist : {
+        TC : "TC",
+        PE : "PE",
+        CCO : "CCO",
+        TLE : "TLE",
+      },
+      bu_datalist : {
+        OCPL : "Centre Pays de Loire",
+        OAURA : "Auvergne-Rhône-Alpes"
+      },
+    };   
+  },
+  validations: {   
+    caseDoc: {
+      imputation_code : { required },
+      type : { required },
+      owners: {
+          business : { required },
+          execution : { required },
+          field : { required },
+          business_unit : { required },
+      },
+      contract : {
+          signing_date : { required },
+          client : { required },
+          name : { required },
+          revenu: { required },
+      } 
+    }
+  },
+  computed : {
+    work_duration : function(){
+      if (this.caseDoc.schedule.end_date == "" || this.caseDoc.schedule.start_date == "" ) return '-';
+      var days = (this.caseDoc.schedule.end_date_ts - this.caseDoc.schedule.start_date_ts) / 86400000;
+      return (days == 1) ? "1 jour" : ((days < 30) ? days + " jours" : parseInt(days/7) + "semaines");
     }
   },
   methods: {
@@ -169,73 +194,103 @@ export default {
         });
         return record;
     },
-    validationScheeme(){
-      var validation = Object({
-            imputation_code : { required },
-            type : { required },
-            owners: {
-                business : { required }
-            },
-            contract : {
-                signing_date : { required },
-                client : { required },
-                name : { required },
-                revenu: { required },
-            } 
-        });
-        return validation;
+    update_dates(){
+      this.caseDoc.schedule.end_date_ts = (new Date(this.caseDoc.schedule.end_date)).getTime();
+      this.caseDoc.schedule.start_date_ts = (new Date(this.caseDoc.schedule.start_date)).getTime();
     },
-    tooltipForm() {
+    update_currency(){
+
+       this.caseDoc.contract.revenu = this.caseDoc.contract.revenu.replace('€','').replaceAll(/\s/g,'').replace(",",".");
+    },
+    create_new_case(){
+      var db = getFirebaseBackend().getFirestore();
+      db.collection("case").doc(this.caseDoc.owners.business_unit).collection("2021").add(this.caseDoc).then((docRef) => {
+       this.$router.push({ name: 'case-detail', params: { bu:this.caseDoc.owners.business_unit, caseId: docRef.id } })
+      })
+      .catch((error) => {
+          console.error("Error writing document: ", error);
+      });
+    },
+    submitForm() {
       this.submitform = true;
       this.$v.$touch();
+      if (!this.$v.$invalid) {
+        this.create_new_case();
+      }
+
     },
-  }
-}
+  },
+};
 </script>
 
 <template>
   <Layout>
-    <PageHeader :title="title" :items="items" />   
-    <Loader :loading="loaded">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title">Créer un chantier</h4>
-          <!--<p class="card-title-desc">----</p> -->
-          <form class="needs-validation" @submit.prevent="tooltipForm">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="mb-3 position-relative">
-                    <label for="validationTooltip01">First name</label>
-                    <input
-                      id="validationTooltip01"
-                      v-model="caseDoc.imputation_code"
-                      type="text"
-                      class="form-control"
-                      placeholder="First name"
-                      value="Mark"
-                      :class="{
-                        'is-invalid': submitform && $v.tooltipform.fname.$error,
-                      }"
-                    />
-                    <div
-                      v-if="submitform && $v.tooltipform.fname.$error"
-                      class="invalid-tooltip"
-                    >
-                      <span v-if="!$v.tooltipform.fname.required"
-                        >Please provide valid First name.</span
-                      >
-                    </div>
+    <PageHeader :title="title" :items="items" />
+    <h1>{{caseDoc.fname}}</h1>
+    <form class="needs-validation" @submit.prevent="submitForm">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title font-size-16">Description du chantier</h4>
+              <!--<p class="card-title-desc">----</p> -->
+                <div class="row">
+                  <form_entry type='datalist' label="Type"                v-model="caseDoc.type                  " size="2"  :check="$v.caseDoc.type                 " tooltip="Champs obligatoire" :submitform="submitform" :list="type_datalist"/>
+                  <form_entry type='text'     label="Numéro d'imputation" v-model="caseDoc.imputation_code       " size="3"  :check="$v.caseDoc.imputation_code      " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  <form_entry type='date'     label="Date de signature"   v-model="caseDoc.contract.signing_date " size="3"  :check="$v.caseDoc.contract.signing_date" tooltip="Champs obligatoire" :submitform="submitform"/>
+                  
+                  <form_entry type='currency' label="Chiffre d'affaires"  v-model="caseDoc.contract.revenu       " size="4"  :check="$v.caseDoc.contract.revenu       " tooltip="Champs obligatoire" :submitform="submitform" @updated="update_currency()"/>
+                  <form_entry type='text'     label="Nom du chantier"     v-model="caseDoc.contract.name         " size="12"  :check="$v.caseDoc.contract.name        " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  <form_entry type='text'     label="Client"              v-model="caseDoc.contract.client       " size="12"  :check="$v.caseDoc.contract.client      " tooltip="Champs obligatoire" :submitform="submitform"/>
                   </div>
+            </div>
+            <div class="card-body">
+              <h1 class="card-title font-size-16">Responsables</h1>
+              <!--<p class="card-title-desc">----</p> -->
+                <div class="row">
+                  <form_entry type='datalist' label="Direction Régionale" v-model=caseDoc.owners.business_unit size="3"  :check="$v.caseDoc.owners.business_unit " tooltip="Champs obligatoire" :submitform="submitform" :list="bu_datalist"/>
+                  <form_entry type='text'     label="Resp. d'affaire"     v-model=caseDoc.owners.business      size="3"  :check="$v.caseDoc.owners.business      " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  <form_entry type='text'     label="Resp. d'exécution"   v-model=caseDoc.owners.execution     size="3"  :check="$v.caseDoc.owners.execution     " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  <form_entry type='text'     label="Resp. Opérationnel"  v-model=caseDoc.owners.field         size="3"  :check="$v.caseDoc.owners.field         " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  </div>
+            </div>
+            <div class="card-body">
+              <h1 class="card-title">Planning</h1>
+              <!--<p class="card-title-desc">----</p> -->
+                <div class="row">
+                  <form_entry type='date'     label="Date de début" v-model=caseDoc.schedule.start_date  size="3" @updated="update_dates()"/>
+                  <form_entry type='date'     label="Date de fin  " v-model=caseDoc.schedule.end_date    size="3" @updated="update_dates()"/>
+                  <form_entry type='label'    label="Durée"         v-model=work_duration                size="2" />
+                  </div>
+            </div>
+            <!--<div class="card-body">
+              <h1 class="card-title">Budget d'exécution</h1>
+              <p class="card-title-desc">----</p>
+                <div class="row">
+                  <form_entry type='number'     label="Budget Main d'Oeuvre(€)" v-model=caseDoc.budget.workforce    size="4"  />
+                  <form_entry type='number'     label="Budget Matériel(€)"      v-model=caseDoc.budget.material      size="4"  />
+                  <form_entry type='number'     label="Budget ST(€)"            v-model=caseDoc.budget.subcontracting        size="4"  />
+                  <form_entry type='label'     label="Total(€)"                 :v-model="(caseDoc.budget.workforce+caseDoc.budget.material+caseDoc.budget.subcontracting)"  size="12"  />
                 </div>
-              </div>
-              <button class="btn btn-primary" type="submit">Submit form</button>
-          </form>
-        </div>     
+            </div> -->
+          </div>
+          <!-- end card -->
+        </div>
+        <!-- end col -->
       </div>
-    </Loader>
+      <!-- end row -->
+      <p align="right">
+        <button type="submit" class="pill btn btn-success btn-rounded mb-2 me-2 ">Créer le chantier</button>
+      </p>
+    </form>
   </Layout>
 </template>
 
-
-<style scoped>
+<style>
+.pill {
+  border-radius: 30px;
+  color: #fff;
+  background-color: #34c38f;
+  border-color: #34c38f;
+}
 </style>

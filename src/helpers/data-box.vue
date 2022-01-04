@@ -26,9 +26,6 @@ export default {
     created: function () {
         this.editFlag = !(this.editable === false)
         this.val = this.item
-        if (this.type === "Label"){
-            console.log(this.label + "  "+ this.item);
-        }
     },
 }
 </script>
@@ -39,7 +36,7 @@ export default {
         <label style="width : 20em" class="root">{{this.label}}</Label>
         <editable_string        v-if="type ==='String'"        class="form-control me-auto" v-model="val"   @updated="update()"                           ></editable_string>
         <editable_string        v-else-if="type ==='Label'"    class="form-control me-auto" v-model="item"  @updated="update()" :editable="false"        ></editable_string>
-        <editable_currency      v-else-if="type ==='Currency'" class="form-control me-auto" v-model="val"   @updated="update()"  :editable="editFlag"     ></editable_currency>
+        <editable_currency      v-else-if="type ==='Currency'" class="form-control me-auto" v-model="val"   @updated="update()" :editable="editFlag"     ></editable_currency>
         <editable_date          v-else-if="type ==='Date'"     class="form-control me-auto" v-model="val"   @updated="update()"                           ></editable_date>
         <editable_percentage    v-else-if="type ==='Percent'"  class="form-control me-auto" v-model="val"   @updated="update()"                           ></editable_percentage>
         <editable_datalist      v-else-if="type ==='Datalist'" class="form-control me-auto" v-model="val"   @updated="update()"  :list="datalist"         ></editable_datalist>
