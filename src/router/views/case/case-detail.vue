@@ -103,7 +103,6 @@ export default {
     update_case_schedule(){
       this.caseDoc.schedule.end_date_ts = (new Date(this.caseDoc.schedule.end_date)).getTime();
       this.caseDoc.schedule.start_date_ts = (new Date(this.caseDoc.schedule.start_date)).getTime();
-      console.log(this.caseDoc.schedule.end_date_ts + "   " + this.caseDoc.schedule.start_date_ts)
       var db = getFirebaseBackend().getFirestore();
       db.collection("case").doc(this.$route.params.bu).collection("2021").doc(this.$route.params.caseId).update({
           "schedule.end_date_ts" : this.caseDoc.schedule.end_date_ts,
@@ -122,7 +121,8 @@ export default {
 
 <template>
   <Layout>
-    <PageHeader :title="title" :items="items" />   
+    <PageHeader :title="title" :items="items" />
+    <h4>{{this.caseDoc}}</h4>
     <Loader :loading="caseDoc !== null">
       <template v-if="caseDoc !== null && caseDoc.contract !== null">
         <div class="card">
