@@ -1,7 +1,4 @@
 <script>
-import axios from "axios";
-
-
 import {
   authMethods,
   authFackMethods,
@@ -73,57 +70,38 @@ export default {
       this.submitted = true;
       // stop here if form is invalid
       this.$v.$touch();
-
       if (this.$v.$invalid) {
         return;
       } else {
-        if (process.env.VUE_APP_DEFAULT_AUTH === "firebase") {
-          this.tryingToRegister = true;
-          // Reset the regError if it existed.
-          this.regError = null;
-          return (
-            this.register({
-              email: this.user.email,
-              password: this.user.password,
+        this.tryingToRegister = true;
+        // Reset the regError if it existed.
+        this.regError = null;
+        return (
+          this.register({         
+            email: this.user.email,
+            password: this.user.password
+          })
+            // eslint-disable-next-line no-unused-vars
+            .then((token) => {
+              this.updateProfile({displayName : this.user.username});
+              this.tryingToRegister = false;
+              this.isRegisterError = false;
+              this.registerSuccess = true;
+
+              if (this.registerSuccess) {
+                this.$router.push(
+                  this.$route.query.redirectFrom || {
+                    name: "default",
+                  }
+                );
+              }     
             })
-              // eslint-disable-next-line no-unused-vars
-              .then((token) => {
-                this.updateProfile( {
-                  displayName: this.user.username
-                })
-                this.tryingToRegister = false;
-                this.isRegisterError = false;
-                this.registerSuccess = true;
-                if (this.registerSuccess) {
-                  this.$router.push(
-                    this.$route.query.redirectFrom || {
-                      name: "default",
-                    }
-                  );
-                }     
-              })
-              .catch((error) => {
-                this.tryingToRegister = false;
-                this.regError = error ? error : "";
-                this.isRegisterError = true;
-              })
-          );
-        } else if (process.env.VUE_APP_DEFAULT_AUTH === "fakebackend") {
-          const { email, username, password } = this.user;
-          if (email && username && password) {
-            this.registeruser(this.user);
-          }
-        } else if (process.env.VUE_APP_DEFAULT_AUTH === "authapi") {
-          axios
-            .post("http://127.0.0.1:8000/api/register", {
-              username: this.user.username,
-              email: this.user.email,
-              password: this.user.password,
+            .catch((error) => {
+              this.tryingToRegister = false;
+              this.regError = error ? error : "";
+              this.isRegisterError = true;
             })
-            .then((res) => {
-              return res;
-            });
-        }
+        );
       }
     }
   },

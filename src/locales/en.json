@@ -78,7 +78,6 @@
         },
         "button": "View More.."
       },
-      "henry": {
         "text": "Henry",
         "list": {
           "profile": "Profile",
@@ -86,7 +85,6 @@
           "settings": "Settings",
           "lockscreen": "Lock screen",
           "logout": "Logout"
-        }
       }
     }
   },

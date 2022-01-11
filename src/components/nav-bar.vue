@@ -369,14 +369,14 @@ export default {
           </template>
           <!-- item-->
           <b-dropdown-item>
-            <router-link tag="span" to="/contacts/profile">
+            <router-link tag="span" to="/account/profile">
               <i class="bx bx-user font-size-16 align-middle me-1"></i>
-              {{ $t("navbar.dropdown.henry.list.profile") }}
+              {{ $t("navbar.dropdown.list.profile") }}
             </router-link>
           </b-dropdown-item>
           <b-dropdown-item href="javascript: void(0);">
             <i class="bx bx-lock-open font-size-16 align-middle me-1"></i>
-            {{ $t("navbar.dropdown.henry.list.lockscreen") }}
+            {{ $t("navbar.dropdown.list.lockscreen") }}
           </b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
           <a
@@ -387,7 +387,7 @@ export default {
             <i
               class="bx bx-power-off font-size-16 align-middle me-1 text-danger"
             ></i>
-            {{ $t("navbar.dropdown.henry.list.logout") }}
+            {{ $t("navbar.dropdown.list.logout") }}
           </a>
         </b-dropdown>        
       </div>

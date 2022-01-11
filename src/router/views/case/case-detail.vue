@@ -91,20 +91,20 @@ export default {
     },
     load_case_data(){
       var db = getFirebaseBackend().getFirestore();
-      db.collection("case").doc(this.$route.params.bu).collection("2021").doc(this.$route.params.caseId)
+      db.collection("case").doc(this.$route.params.bu).collection("current").doc(this.$route.params.caseId)
       .get().then((document) => {          
         this.caseDoc = document.data();
       });
     },
     update_case_data(){
       var db = getFirebaseBackend().getFirestore();
-      db.collection("case").doc(this.$route.params.bu).collection("2021").doc(this.$route.params.caseId).update(this.caseDoc);
+      db.collection("case").doc(this.$route.params.bu).collection("current").doc(this.$route.params.caseId).update(this.caseDoc);
     },
     update_case_schedule(){
       this.caseDoc.schedule.end_date_ts = (new Date(this.caseDoc.schedule.end_date)).getTime();
       this.caseDoc.schedule.start_date_ts = (new Date(this.caseDoc.schedule.start_date)).getTime();
       var db = getFirebaseBackend().getFirestore();
-      db.collection("case").doc(this.$route.params.bu).collection("2021").doc(this.$route.params.caseId).update({
+      db.collection("case").doc(this.$route.params.bu).collection("current").doc(this.$route.params.caseId).update({
           "schedule.end_date_ts" : this.caseDoc.schedule.end_date_ts,
           "schedule.end_date" : this.caseDoc.schedule.end_date,
           "schedule.start_date" : this.caseDoc.schedule.start_date,
@@ -113,7 +113,7 @@ export default {
     },
     update_case_comments(){
       var db = getFirebaseBackend().getFirestore();
-      db.collection("case").doc(this.$route.params.bu).collection("2021").doc(this.$route.params.caseId).update({comments : this.caseDoc.comments});
+      db.collection("case").doc(this.$route.params.bu).collection("current").doc(this.$route.params.caseId).update({comments : this.caseDoc.comments});
     }
   }
 }

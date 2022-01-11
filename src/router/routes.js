@@ -63,6 +63,12 @@ export default [
     },
   },
   {
+    path: "/account/profile",
+    name: "account-profile",
+    meta: { authRequired: true },
+    component: () => import('./views/account/profile')
+  },
+  {
     path: '/forgot-password',
     name: 'Forgot password',
     component: () => import('./views/account/forgot-password'),

@@ -43,11 +43,16 @@
 export default {
     data: () => ({
         val:  null,
-    }),
-    props: ['label', 'type', 'size','item', 'submitform', 'check','placeholder', 'tooltip','list'],
+    }), 
+    props: ['label', 'type', 'size','item', 'submitform', 'check','placeholder', 'tooltip','list','disabled'],
     model: {
         prop: 'item',
         event: 'updated'
+    },
+    watch: { 
+        item: function(newVal) { // watch it
+            this.val = newVal;   
+        }
     },
     methods: {
         update(){
@@ -59,14 +64,16 @@ export default {
             }
 
         },
+        updated(){
+          
+        }
     },
      created(){
         if(this.type === "currency" && this.val !== null){
             this.val = Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(this.item);
         }else{
             this.val = this.item;   
-        }
-
+        }     
      }
 }
 </script>

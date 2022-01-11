@@ -204,7 +204,7 @@ export default {
     },
     create_new_case(){
       var db = getFirebaseBackend().getFirestore();
-      db.collection("case").doc(this.caseDoc.owners.business_unit).collection("2021").add(this.caseDoc).then((docRef) => {
+      db.collection("case").doc(this.caseDoc.owners.business_unit).collection("current").add(this.caseDoc).then((docRef) => {
        this.$router.push({ name: 'case-detail', params: { bu:this.caseDoc.owners.business_unit, caseId: docRef.id } })
       })
       .catch((error) => {

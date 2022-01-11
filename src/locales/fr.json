@@ -3,52 +3,12 @@
         "search": {
             "text": "Chercher..."
         },
-        "dropdown": {            
-            "site": {
-                "list": {
-                    "github": "GitHub",
-                    "bitbucket": "Bitbucket",
-                    "dribbble": "Dribble",
-                    "dropbox": "Dropbox",
-                    "mailchimp": "Mail Chimp",
-                    "slack": "Molle"
-                }
-            },
-            "notification": {
-                "badge": "3",
-                "text": "Notifications",
-                "subtext": "Voir tout",
-                "order": {
-                    "title": "Votre commande est passée",
-                    "text": "Si plusieurs langues fusionnent la grammaire",
-                    "time": "Il y a 3 minutes"
-                },
-                "james": {
-                    "title": "James Lemire",
-                    "text": "It will seem like simplified English.",
-                    "time": "Il y a 1 heure"
-                },
-                "item": {
-                    "title": "Votre article est expédié",
-                    "text": "Si plusieurs langues fusionnent la grammaire",
-                    "time": "Il y a 3 minutes"
-                },
-                "salena": {
-                    "title": "Salena Layfield",
-                    "text": "As a skeptical Cambridge friend of mine occidental.",
-                    "time": "Il y a 1 heure"
-                },
-                "button": "Charger plus.."
-            },
-            "henry": {
-                "text": "Henri",
-                "list": {
-                    "profile": "Profil",
-                    "mywallet": "Mon portefeuille",
-                    "settings": "Réglages",
-                    "lockscreen": "Écran verrouillé",
-                    "logout": "Se déconnecter"
-                }
+        "dropdown":{
+            "list": {
+                "profile": "Profil",
+                "settings": "Réglages",
+                "lockscreen": "Écran verrouillé",
+                "logout": "Se déconnecter"
             }
         }
     },

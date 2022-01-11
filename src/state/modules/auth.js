@@ -36,7 +36,6 @@ export const actions = {
         return getFirebaseBackend().loginUser(email, password).then((response) => {
             const user = response
             commit('SET_CURRENT_USER', user)
-            console.log(user);
             return user
         });
     },
@@ -56,23 +55,23 @@ export const actions = {
     },
 
     // register the user
-    register({ commit, dispatch, getters }, { email, password } = {}) {
+    register({ commit, dispatch, getters }, {displayName, email, password } = {}) {
         if (getters.loggedIn) return dispatch('validate')
 
         return getFirebaseBackend().registerUser(email, password).then((response) => {
             const user = response
             commit('SET_CURRENT_USER', user)
+            user.updateProfile( {
+                displayName: displayName
+              })
             return user
         });
     },
 
     // update User Information
-    updateProfile({ commit}, { displayName } = {}) { 
-        console.log("Try to update name;")
-        console.log (displayName);      
-        return getFirebaseBackend().updateProfile(displayName).then(() => {
+    updateProfile({ commit}, update) { 
+        return getFirebaseBackend().updateProfile(update).then(() => {
             var user = getFirebaseBackend().getAuthenticatedUser();  
-            user.displayName = displayName;
             commit('SET_CURRENT_USER', user)
             return user;
         });

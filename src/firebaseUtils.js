@@ -2,6 +2,7 @@ import firebase from 'firebase/app';
 // Add the Firebase products that you want to use
 import "firebase/auth";
 import "firebase/firestore";
+import store from '@/state/store'
 
 class FirebaseAuthBackend {
 
@@ -12,6 +13,7 @@ class FirebaseAuthBackend {
             var auth = firebase.auth();
             if (process.env.NODE_ENV  === "development"){
                 firebase.firestore().useEmulator('localhost', 8083);
+                auth.useEmulator(process.env.VUE_APP_FB_EMUL_AUTH_URL);
             }
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -26,14 +28,13 @@ class FirebaseAuthBackend {
     /**
      * Registers the user with given details
      */
-    registerUser = (email, password, displayName) => {
+    registerUser = (email, password) => {
         return new Promise((resolve, reject) => {
             const auth = firebase.auth();
-            auth.createUserWithEmailAndPassword(email, password).then((user) => {
+            auth.createUserWithEmailAndPassword(email, password).then(() => {
                 // eslint-disable-next-line no-redeclare
-                var user = firebase.auth().currentUser;
-                resolve(user);
-                this.updateProfile(displayName);
+                var user = firebase.auth().currentUser;               
+                resolve(user);               
             }, (error) => {
                 reject(this._handleError(error));
             });
@@ -56,6 +57,9 @@ class FirebaseAuthBackend {
         });
     }
 
+
+
+
     /**
      * getFirestore
      */
@@ -68,14 +72,30 @@ class FirebaseAuthBackend {
     /**
      * Login user with given details
      */
-     updateProfile = (displayName) => {    
-        return new Promise((resolve, reject) => {
+     updateProfile = (update) => {    
+        return new Promise((resolve, reject) => {       
             const auth = firebase.auth();
-            auth.currentUser.updateProfile({displayName : displayName}).then(() => {
-                resolve(true);
-            }).catch((error) => {
-                reject(this._handleError(error));  
-            })
+            if (update.displayName !== undefined ){     
+                auth.currentUser.updateProfile(update).then(() => {
+                    const uid = auth.currentUser.uid;
+                    getFirebaseBackend().getFirestore().collection("Users").doc(uid).update(update).then(() => {  
+                        resolve(true);
+                     }).catch((error) => {
+                        reject(this._handleError(error));  
+                    });
+                }).catch((error) => {
+                    reject(this._handleError(error));
+                });
+            }else{
+                var uid = store.getters['auth/getCurrentUser'].uid;    
+                if (uid === undefined) auth.currentUser
+                var db = getFirebaseBackend().getFirestore();
+                db.collection("Users").doc(uid).update(update).then(() => { 
+                    resolve(true);
+                }).catch((error) => {
+                    reject(this._handleError(error));
+                });
+            }
         });
     }
 
@@ -150,4 +170,11 @@ const getFirebaseBackend = () => {
     return _fireBaseBackend;
 }
 
-export { initFirebaseBackend, getFirebaseBackend };
+/**
+ * Returns the currentUser
+ */
+ const getFirebaseCurrentUser = () => {
+    return (firebase.auth().currentUser);
+}
+
+export { initFirebaseBackend, getFirebaseBackend, getFirebaseCurrentUser };
