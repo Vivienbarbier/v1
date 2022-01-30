@@ -67,9 +67,9 @@ export default {
       this.$v.$touch();
       if (!this.$v.$invalid) {
         getFirebaseBackend().updateProfile({
-          displayName   : this.userData.displayName,
-          business_unit : this.userData.business_unit,
-          phoneNumber   : this.userData.phoneNumber,
+          displayName   : (this.userData.displayName === undefined ?  "" : this.userData.displayName),
+          business_unit : (this.userData.business_unit === undefined ?  "" : this.userData.business_unit),
+          phoneNumber   : (this.userData.phoneNumber === undefined ?  "" : this.userData.phoneNumber),
         }).then(() => {
         }).catch((error) => {
           console.log("Error : Unable to updathe User information.",error)

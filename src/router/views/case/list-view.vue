@@ -39,10 +39,11 @@ export default {
       caselist: [],
       headers : [
             { name: "work_order_number",  label : "WO",                 sortable : true,  filtrable : true,  align: "center", style :"width:9em" }, 
-            { name: "owner",              label : "Responsable",        sortable : true,  filtrable : true,  align: "center", style :"" },
+            { name: "type",               label : "Type",               sortable : true,  filtrable : true,  align: "center", style :"width:5em" },
+            { name: "owner",               label : "Resp.",             sortable : true,  filtrable : true,  align: "center", style :"" },
             { name: "client",             label : "Client",             sortable : true,  filtrable : true,  align: "right",  style :"" },
             { name: "name",               label : "Nom du chantier",    sortable : true,  filtrable : true,  align: "right",  style :"width:25em" },
-            { name: "revenu",             label : "Chiffre d'affaires", sortable : true,  filtrable : true,  align: "center", style :"" },
+            { name: "revenu",             label : "Chiffre d'affaires", sortable : true,  filtrable : true,  align: "center", style :"width:10em" },
             { name: "start_date",         label : "Début",              sortable : true,  filtrable : true,  align: "center", style :"width:8em" },
             { name: "progress",           label : "Avancement",         sortable : true,  filtrable : true,  align: "left",   style :"width:8em" },
             { name: "status",             label : "Status",             sortable : true,  filtrable : true,  align: "center", style :"width:7em" },
@@ -66,6 +67,7 @@ export default {
             this.caselist.push({
               id : c.id,
               business_unit: doc.id,
+              type : c.type,
               index : ++count,
               work_order_number : c.work_order_number,
               imputation_code   : c.imputation_code,
@@ -80,10 +82,7 @@ export default {
           });
         });
         this.updating = false;
-       })
-      .catch((error) => {
-        console.log("Error getting documents: ", error);
-      }); 
+       });
     }
   },
 };

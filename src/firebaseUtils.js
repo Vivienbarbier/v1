@@ -57,25 +57,13 @@ class FirebaseAuthBackend {
         });
     }
 
-
-
-
     /**
-     * getFirestore
+     * Update profile detail
      */
-     getFirestore = () => {
-        var db = firebase.firestore();
-        return db;        
-    }
-    
-
-    /**
-     * Login user with given details
-     */
-     updateProfile = (update) => {    
+    updateProfile = (update) => {    
         return new Promise((resolve, reject) => {       
             const auth = firebase.auth();
-            if (update.displayName !== undefined ){     
+            if (update.displayName !== undefined ){  
                 auth.currentUser.updateProfile(update).then(() => {
                     const uid = auth.currentUser.uid;
                     getFirebaseBackend().getFirestore().collection("Users").doc(uid).update(update).then(() => {  
@@ -88,7 +76,7 @@ class FirebaseAuthBackend {
                 });
             }else{
                 var uid = store.getters['auth/getCurrentUser'].uid;    
-                if (uid === undefined) auth.currentUser
+                 if (uid === undefined) auth.currentUser
                 var db = getFirebaseBackend().getFirestore();
                 db.collection("Users").doc(uid).update(update).then(() => { 
                     resolve(true);
@@ -97,7 +85,21 @@ class FirebaseAuthBackend {
                 });
             }
         });
+    }    
+
+
+
+
+
+
+    /**
+     * getFirestore
+     */
+     getFirestore = () => {
+        var db = firebase.firestore();
+        return db;        
     }
+    
 
     /**
      * forget Password user with given details
@@ -176,5 +178,12 @@ const getFirebaseBackend = () => {
  const getFirebaseCurrentUser = () => {
     return (firebase.auth().currentUser);
 }
+
+
+
+
+
+
+
 
 export { initFirebaseBackend, getFirebaseBackend, getFirebaseCurrentUser };

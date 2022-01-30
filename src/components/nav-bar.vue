@@ -361,10 +361,7 @@ export default {
               class="rounded-circle header-profile-user"
               src="@/assets/images/users/avatar-homme.png"
               alt="Header Avatar"
-            />
-            <span class="d-none d-xl-inline-block ms-1">{{
-              displayName
-            }}</span>
+            />{{displayName}}
             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
           </template>
           <!-- item-->

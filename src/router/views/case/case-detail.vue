@@ -11,6 +11,8 @@ import Loader from "@/components/widgets/loader";
 
 import CKEditor from "@ckeditor/ckeditor5-vue";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { chartRevenueHistory } from "./chartsOptions";
+
 
 
 /**
@@ -48,6 +50,7 @@ export default {
         schedule : true,
         costs : true,
         risks : true,
+        graph: true,
         situation : false,
         exercices : false
       },
@@ -72,8 +75,8 @@ export default {
         CCO : "CCO",
         TLE : "TLE",
       },
-
-     }
+      chartRevenueHistory: chartRevenueHistory,
+    }
   },
   computed: {
     work_duration : function(){
@@ -85,6 +88,39 @@ export default {
     this.load_case_data();
   },
   methods: {
+    computeGraphs(){      
+      this.chartRevenueHistory.series = [
+        {name : "Chiffre d'affaires", data :[] },
+        {name : "Marge", data :[] }
+       ];
+      var revenu =  0, margin = 0;
+      let now = (new Date()).getTime();
+      for( var rec of this.caseDoc.records){
+        let ts = (new Date(rec.date)).getTime()
+        if(ts <= now){
+          this.chartRevenueHistory.series[0].data.push([ts, Math.round(revenu)]) 
+          this.chartRevenueHistory.series[1].data.push([ts, Math.round(margin)]) 
+          revenu +=  rec.revenu
+          margin += rec.margin
+        }
+      }
+      var count = 0
+      for( var prev of this.caseDoc.previsions){ 
+        let ts = (new Date(prev.date)).getTime()
+        if(ts > now){
+          this.chartRevenueHistory.series[0].data.push([ts, Math.round(revenu)]);
+          this.chartRevenueHistory.series[1].data.push([ts, Math.round(margin)]);
+          revenu +=  prev.revenu
+          margin += rec.margin
+          count++;
+        }
+      }
+      
+      this.chartRevenueHistory.options.forecastDataPoints.count = count;
+      let max = Math.max(revenu,margin);
+      console.log(max, revenu, margin)
+      this.chartRevenueHistory.options.yaxis.max = max + (10000 - (max % 10000));
+    },
     formatCurrency(amount, currency,maximumFractionDigits){
       return (Intl.NumberFormat('fr-FR', { style: 'currency', currency: currency, maximumFractionDigits: maximumFractionDigits }).format(amount));
 
@@ -94,6 +130,8 @@ export default {
       db.collection("case").doc(this.$route.params.bu).collection("current").doc(this.$route.params.caseId)
       .get().then((document) => {          
         this.caseDoc = document.data();
+        console.log(this.caseDoc)
+        this.computeGraphs();
       });
     },
     update_case_data(){
@@ -122,9 +160,8 @@ export default {
 <template>
   <Layout>
     <PageHeader :title="title" :items="items" />
-    <h4>{{this.caseDoc}}</h4>
     <Loader :loading="caseDoc !== null">
-      <template v-if="caseDoc !== null && caseDoc.contract !== null">
+      <template v-if="caseDoc !== null && caseDoc.contract !== undefined">
         <div class="card">
           <div class="card-body">
             <!--<h4 class="card-title">Détail du chantier</h4>
@@ -133,7 +170,7 @@ export default {
               <b-card no-body class="mb-1 shadow-none">
                 <b-card-header header-tag="header" role="tab" @click="sState.description = !sState.description">
                   <h6 class="m-0">
-                    <a class="text-dark" >Description du chantier</a>
+                    <a class="text-dark fw-bold" >Description du chantier</a>
                     <span style="float:right;">
                       <i :class="sState.description ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                     </span>
@@ -157,7 +194,7 @@ export default {
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" role="tab" @click="sState.owners = !sState.owners">
                   <h6 class="m-0">
-                    <a class="text-dark" >Responsables</a>
+                    <a class="text-dark fw-bold" >Responsables</a>
                     <span style="float:right;">
                       <i :class="sState.owners ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                     </span>
@@ -177,7 +214,7 @@ export default {
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" role="tab" @click="sState.schedule = !sState.schedule">
                   <h6 class="m-0">
-                    <a class="text-dark" >Planning</a>
+                    <a class="text-dark fw-bold" >Planning</a>
                     <span style="float:right;">
                       <i :class="sState.schedule ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                     </span>
@@ -197,7 +234,7 @@ export default {
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" role="tab" @click="sState.costs = !sState.costs">
                   <h6 class="m-0">
-                    <a class="text-dark" >Charges</a>
+                    <a class="text-dark fw-bold" >Charges</a>
                     <span style="float:right;">
                       <i :class="sState.costs ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                     </span>
@@ -285,11 +322,33 @@ export default {
                     </table>
                   </b-card-body>
                 </b-collapse>
+              </b-card>          
+              <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" role="tab" @click="sState.graph = !sState.graph">
+                  <h6 class="m-0">
+                    <a class="text-dark fw-bold" >Graphiques</a>
+                    <span style="float:right;">
+                      <i :class="sState.graph ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
+                    </span>
+                  </h6>
+                </b-card-header>
+                <b-collapse id="graph" v-model=sState.graph>
+                  <b-card-body>
+                    <apexchart
+                      class="apex-charts"
+                      height="380"
+                      type="line"
+                      dir="ltr"
+                      :series="chartRevenueHistory.series"
+                      :options="chartRevenueHistory.options"
+                    ></apexchart>
+                  </b-card-body>
+                </b-collapse>
               </b-card>
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" role="tab" @click="sState.risks = !sState.risks">
                   <h6 class="m-0">
-                    <a class="text-dark" >Risques et Provisions</a>
+                    <a class="text-dark fw-bold" >Risques et Provisions</a>
                     <span style="float:right;">
                       <i :class="sState.risks ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                     </span>
@@ -309,7 +368,7 @@ export default {
                <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" role="tab" @click="sState.situation = !sState.situation">
                   <h6 class="m-0">
-                    <a class="text-dark" >Situation</a>
+                    <a class="text-dark fw-bold" >Situation</a>
                     <span style="float:right;">
                       <i :class="sState.situation ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                     </span>
@@ -330,7 +389,7 @@ export default {
                <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" role="tab" @click="sState.exercices = !sState.exercices">
                   <h6 class="m-0">
-                    <a class="text-dark" >Exercices</a>
+                    <a class="text-dark fw-bold" >Exercices</a>
                     <span style="float:right;">
                       <i :class="sState.exercices ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                     </span>

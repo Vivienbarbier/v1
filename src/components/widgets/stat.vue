@@ -15,6 +15,14 @@ export default {
     icon: {
       type: String,
       default: ""
+    },
+    evol_value: {
+      type: String,
+      default: ""
+    },
+    evol_label: {
+      type: String,
+      default: ""
     }
   }
 };
@@ -35,8 +43,18 @@ export default {
           </span>
         </div>
       </div>
+      <div class="d-flex mt-2">
+        <span class="badge  pill font-size-12">{{evol_value}}</span>
+        <span class="ms-2  text-truncate"> {{evol_label}}</span>
+      </div>
     </div>
     <!-- end card-body -->
   </div>
   <!-- end card -->
 </template>
+
+<style scoped>
+.pill {
+  background-color: #556ee6;
+}
+</style>

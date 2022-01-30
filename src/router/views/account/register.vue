@@ -77,13 +77,13 @@ export default {
         // Reset the regError if it existed.
         this.regError = null;
         return (
-          this.register({         
+          this.register({
+            displayName : this.user.username,         
             email: this.user.email,
             password: this.user.password
           })
             // eslint-disable-next-line no-unused-vars
             .then((token) => {
-              this.updateProfile({displayName : this.user.username});
               this.tryingToRegister = false;
               this.isRegisterError = false;
               this.registerSuccess = true;

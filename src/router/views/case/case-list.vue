@@ -85,33 +85,36 @@ export default {
       if (this.currentSort === "start_date"){
       
         this.table.sort((a,b) => {
-          let modifier = 1;
+          var modifier = 1;
+         
           if(this.currentSortDir === 'desc') modifier = -1;        
           if (a[this.currentSort] === null || a[this.currentSort] ==="-" ) return -1 * modifier;
           if (b[this.currentSort] === null || b[this.currentSort] ==="-" ) return 1 * modifier;
 
-          var dateAParts = a[this.currentSort].split("/");
-          var dateBParts = b[this.currentSort].split("/");
-          if (dateAParts[2] === undefined ) return -1 * modifier;
-          if (dateBParts[2] === undefined ) return 1 * modifier;
+          //var dateAParts = a[this.currentSort].split("-");
+          //var dateBParts = b[this.currentSort].split("-");
+          //if (dateAParts[2] === undefined ) return -1 * modifier;
+          //if (dateBParts[2] === undefined ) return 1 * modifier;
+          //// month is 0-based, that's why we need dataParts[1] - 1       
+          //var dateAObject = new Date(+dateAParts[2], dateAParts[1] - 1, +dateAParts[0]); 
+          //var dateBObject = new Date(+dateBParts[2], dateBParts[1] - 1, +dateBParts[0]); 
+          var dateAObject = new Date(a[this.currentSort]);
+          var dateBObject = new Date(b[this.currentSort]);
 
-          // month is 0-based, that's why we need dataParts[1] - 1       
-          var dateAObject = new Date(+dateAParts[2], dateAParts[1] - 1, +dateAParts[0]); 
-          var dateBObject = new Date(+dateBParts[2], dateBParts[1] - 1, +dateBParts[0]); 
           if(dateAObject < dateBObject) return -1 * modifier;
           if(dateAObject > dateBObject) return 1 * modifier;
           return 0;
         });        
       }else if (typeof this.table[0][this.currentSort] === "string"){
         this.table.sort((a,b) => {
-          let modifier = 1;
+          var modifier = 1;
           if(this.currentSortDir === 'desc') modifier = -1;
           if(a[this.currentSort] === null ) a[this.currentSort]="";
           return (a[this.currentSort].localeCompare(b[this.currentSort]) * modifier);
         });
       }else{
         this.table.sort((a,b) => {
-          let modifier = 1;
+          var modifier = 1;
           if(this.currentSortDir === 'desc') modifier = -1;
           if(a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
           if(a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
@@ -148,10 +151,11 @@ export default {
         <tbody>
           <tr v-for="data in table" :key="data.index">
             <td class="font-size-14 font-weight-bold" aligne="center">
-              <router-link :to="{ name: 'case-detail', params: { bu:data.business_unit, caseId: data.id }}" class="color-black">
+              <router-link :to="{ name: 'case-detail', params: { bu: data.business_unit, caseId: data.id }}" class="color-black">
               {{data.work_order_number}}
               </router-link>
             </td>
+            <td class="font-size-14" aligne="center">{{ data.type }}</td>
             <td class="font-size-14" aligne="center">{{ data.owner }}</td>
             <td class="font-size-14" aligne="center">{{ data.client }}</td>
             <td class="font-size-14" aligne="center">{{ data.name }}</td>
@@ -173,7 +177,7 @@ export default {
               >
             </td> 
             <td align="center">
-              <router-link :to="{ name: 'case-detail', params: { bu:data.business_unit, caseId: data.id }}">
+              <router-link :to="{ name: 'case-detail', params: { bu: data.business_unit, caseId: data.id }}">
                 <i class="mdi mdi-dots-horizontal font-size-18"></i>           
               </router-link>
             </td>

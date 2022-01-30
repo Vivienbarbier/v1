@@ -55,15 +55,14 @@ export const actions = {
     },
 
     // register the user
-    register({ commit, dispatch, getters }, {displayName, email, password } = {}) {
+    register({commit,  dispatch, getters }, {displayName, email, password } = {}) {
         if (getters.loggedIn) return dispatch('validate')
-
         return getFirebaseBackend().registerUser(email, password).then((response) => {
             const user = response
-            commit('SET_CURRENT_USER', user)
-            user.updateProfile( {
+            getFirebaseBackend().updateProfile( {
                 displayName: displayName
-              })
+              });
+            commit('SET_CURRENT_USER', user);
             return user
         });
     },

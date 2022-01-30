@@ -52,7 +52,7 @@ export default {
         stroke: {
           dashArray: 4,
         },
-        labels: ["Series A"],
+        labels: ["Projection M-1"],
       },
       series: [67],
     };
@@ -69,22 +69,22 @@ export default {
   <Loader :loading="updating">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title mb-4">Monthly Earning</h4>
+        <h4 class="card-title mb-4">Résultat du mois</h4>
         <div class="row">
           <div class="col-sm-6">
-            <p class="text-muted">This month</p>
-            <h3>$34,252</h3>
+            <p class="text-muted">Chiffre d'affaire</p>
+            <h3>34 205 €</h3>
             <p class="text-muted">
               <span class="text-success me-2">
-                12%
+                +12%
                 <i class="mdi mdi-arrow-up"></i>
               </span>
-              From previous period
+              par rapport au mois dernier.
             </p>
 
             <div class="mt-4">
               <a href="javascript: void(0);" class="btn btn-primary btn-sm">
-                View More
+                Détails
                 <i class="mdi mdi-arrow-right ms-1"></i>
               </a>
             </div>
@@ -101,9 +101,6 @@ export default {
             ></apexchart>
           </div>
         </div>
-        <p class="text-muted mb-0">
-          We craft digital, graphic and dimensional thinking.
-        </p>
       </div>
     </div>
   </Loader>
