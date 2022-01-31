@@ -3,7 +3,7 @@ import Layout from "../../layouts/main";
 import appConfig from "@/app.config";
 import PageHeader from "@/components/page-header";
 import Stat from "@/components/widgets/stat";
-import { dashboardChartsOptions, caseTypePieChart, caseStatusHistogram } from "./dashboardChartsOptions";
+import { dashboardChartsOptions, caseTypePieChart, caseStatusHistogram} from "./dashboardChartsOptions";
 import { getFirebaseBackend } from "@/firebaseUtils";
 
 
@@ -133,11 +133,11 @@ export default {
             }            
           });
           
-          this.dashboardChartsOptions.options.forecastDataPoints.count = 0; 
+          this.dashboardChartsOptions.chartOptions.forecastDataPoints.count = 0; 
           doc.data().previsions.forEach((r) => {
             revenu += r.revenu;
             margin += r.margin
-            this.dashboardChartsOptions.options.forecastDataPoints.count++;
+            this.dashboardChartsOptions.chartOptions.forecastDataPoints.count++;
             this.dashboardChartsOptions.series[0].data.push([r.ts, Math.round(revenu)]);
             this.dashboardChartsOptions.series[1].data.push([r.ts, Math.round(margin)]);
           });         
@@ -185,10 +185,9 @@ export default {
             <apexchart v-if="this.dashboardChartsOptions.series[0].data[0] !== undefined"
               class="apex-charts"
               height="380"
-              type="line"
               dir="ltr"
               :series="this.dashboardChartsOptions.series"
-              :options="this.dashboardChartsOptions.options"
+              :options="this.dashboardChartsOptions.chartOptions"
             ></apexchart>
           </div>      
         </div>      

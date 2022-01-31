@@ -1,8 +1,8 @@
 const dashboardChartsOptions = {
-    options: {
+  chartOptions: {
         chart: {
             height: 380,
-            type: 'line',
+            type: 'area',
             zoom: {
                 type: 'x',
                 enabled: true,
@@ -27,6 +27,16 @@ const dashboardChartsOptions = {
         stroke: {
             width: [3, 3],
             curve: 'smooth'
+        },
+        fill: {
+          type: "gradient",
+          gradient: {
+            shadeIntensity: 1,
+            inverseColors: false,
+            opacityFrom: 0.45,
+            opacityTo: 0.05,
+            stops: [20, 100, 100, 100],
+          },
         },
         forecastDataPoints: {
             count: 2
@@ -75,12 +85,12 @@ const dashboardChartsOptions = {
                 },
             }
         }],
-    },
-    tooltip: {
-        x: {
-          format: "dd MMM yyyy"
-        },
-    },
+      tooltip: {
+          x: {
+            format: "dd MMM yyyy"
+          },
+      },
+  },
     series: [
         {name : "Chiffre d'affaires", data :[]},
         {name : "Marge", data :[] }
