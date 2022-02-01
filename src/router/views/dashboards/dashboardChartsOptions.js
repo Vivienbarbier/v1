@@ -69,7 +69,7 @@ const dashboardChartsOptions = {
             position: 'top',
             horizontalAlign: 'right',
             floating: true,
-            offsetY: -25,
+            offsetY: -15,
             offsetX: -5
         },
         responsive: [{
@@ -106,10 +106,13 @@ const caseTypePieChart = {
           type: 'donut',
           height: 240,
       },
+      fill: {
+        opacity: 0.8,
+      },
       labels: ['PE', 'TC', 'TLE','CCO', '-'],
       colors: ['#556ee6', '#34c38f', '#f46a6a',  '#f46a00','#aaaaaa'],
       legend: {
-          show: false,
+          show: true,
       },
       plotOptions: {
           pie: {
@@ -136,7 +139,6 @@ const caseStatusHistogram = {
         plotOptions: {
           bar: {
             horizontal: false,
-            columnWidth: "80%",
             endingShape: "rounded",
           },
         },
@@ -151,15 +153,16 @@ const caseStatusHistogram = {
             "En attente",
             "En cours",
             "Terminé",
-            "Cloturé"           
+            "Cloturé" ,
+            "-"          
           ],
         },
         colors: ['#556ee6', '#34c38f', '#f46a6a',  '#f46a00','#aaaaaa'],
         legend: {
-          position: "bottom",
+          position: "right",
         },
         fill: {
-          opacity: 1,
+          opacity: 0.8,
         },
       },
       series : [
@@ -172,11 +175,11 @@ const caseStatusHistogram = {
           data: [0,0,0,0,0,0,0,0],
         },
         {
-            name: "CCO",
+            name: "TLE",
             data: [0,0,0,0,0,0,0,0],
         },
         {
-            name: "TLE",
+            name: "CCO",
             data: [0,0,0,0,0,0,0,0],
         },
         {

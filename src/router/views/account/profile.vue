@@ -30,19 +30,22 @@ export default {
         bu :"-",
         email : "vide",
         phoneNumber : "-",
+        groups : [],
       },
       submitform: false,
       bu_datalist : {
         OCPL : "Centre Pays de Loire",
         OAURA : "Auvergne-Rhône-Alpes"
       },
+      group_datalist : [ "Aura(tous)","Montélimar", "TH"],
     };   
   },
   validations: {   
     userData: {
       displayName : { required },
       business_unit : { required },
-      email : { required },  
+      email : { required },
+      groups : { required },  
     }
   }, 
   mounted(){
@@ -90,10 +93,22 @@ export default {
               <h4 class="card-title font-size-16">Information utilisateur</h4>
               <!--<p class="card-title-desc">----</p> -->
                 <div class="row">
-                  <form_entry type='text'     label="Nom utilisateur"   v-model="userData.displayName"    size="6"  :check="$v.userData.firstname   "   tooltip="Champs obligatoire" :submitform="submitform"/>
-                  <form_entry type='datalist' label="Business Unit"     v-model="userData.business_unit"  size="6"  :check="$v.userData.business_unit"  tooltip="Champs obligatoire" :submitform="submitform"  :list="bu_datalist"/>
+                  <form_entry type='text'     label="Nom utilisateur"    v-model="userData.displayName"    size="6"  :check="$v.userData.firstname   "   tooltip="Champs obligatoire" :submitform="submitform"/>
+                  <form_entry type='datalist' label="Business Unit"      v-model="userData.business_unit"  size="6"  :check="$v.userData.business_unit"  tooltip="Champs obligatoire" :submitform="submitform"  :list="bu_datalist"/>
                   <form_entry type='label'     label="E-mail"            v-model="userData.email    "      size="6"  :check="$v.userData.email       "   tooltip="Champs obligatoire" :submitform="submitform" /> 
-                  <form_entry type='text'     label="Téléphone"         v-model="userData.phoneNumber"    size="6"  :check="$v.userData.phoneNumber   " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  <form_entry type='text'     label="Téléphone"      v-model="userData.phoneNumber"    size="6"  :check="$v.userData.phoneNumber   " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  </div>
+            </div>
+          </div>           
+        </div>
+        <!-- end col -->
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title font-size-16">Droits</h4>
+              <!--<p class="card-title-desc">----</p> -->
+                <div class="row">
+                  <form_entry type='datalist'     label="Groupe(s)"   v-model="userData.groups"    size="6"  :check="$v.userData.groups   "   tooltip="Champs obligatoire" :submitform="submitform"  :list="group_datalist" :multiple="true" />                 
                   </div>
             </div>
           </div>           

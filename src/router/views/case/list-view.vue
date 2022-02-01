@@ -40,6 +40,7 @@ export default {
       headers : [
             { name: "work_order_number",  label : "WO",                 sortable : true,  filtrable : true,  align: "center", style :"width:9em" }, 
             { name: "type",               label : "Type",               sortable : true,  filtrable : true,  align: "center", style :"width:5em" },
+            //{ name: "group",               label : "Groupe",            sortable : true,  filtrable : true,  align: "center", style :"width:8em" },
             { name: "owner",               label : "Resp.",             sortable : true,  filtrable : true,  align: "center", style :"" },
             { name: "client",             label : "Client",             sortable : true,  filtrable : true,  align: "right",  style :"" },
             { name: "name",               label : "Nom du chantier",    sortable : true,  filtrable : true,  align: "right",  style :"width:25em" },
@@ -66,7 +67,8 @@ export default {
           list.forEach((c) => {
             this.caselist.push({
               id : c.id,
-              business_unit: doc.id,
+              group: doc.id,
+              business_unit: doc.business_unit,
               type : c.type,
               index : ++count,
               work_order_number : c.work_order_number,

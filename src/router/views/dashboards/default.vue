@@ -74,15 +74,17 @@ export default {
       return (Intl.NumberFormat('fr-FR', { style: 'currency', currency: currency, maximumFractionDigits: maximumFractionDigits }).format(amount));
     },
     load_case_list(){
+      var series = [new Array(), new Array()];
       var db = getFirebaseBackend().getFirestore();
       db.collection("case")
       .get()
       .then((querySnapshot) => {
+
         this.kpi.number_of_cases.by_type = [0,0,0,0,0];
         this.kpi.revenu.ytd_by_type = [0,0,0,0,0];
         this.kpi.margin.ytd_by_type = [0,0,0,0,0];
         querySnapshot.forEach((doc) => { 
-
+          console.log(doc.data().group)
           const list = doc.data().list;
           list.forEach((c) => {
             this.kpi.number_of_cases.total++;
@@ -90,8 +92,8 @@ export default {
             switch (c.type) {
               case 'PE' :     type = 0; break;
               case 'TC' :     type = 1; break;
-              case 'CCO' :    type = 2; break;
-              case 'TLE' :    type = 3; break;
+              case 'TLE' :    type = 2; break;
+              case 'CCO' :    type = 3; break;
               default :       type = 4; break;
             }   
             
@@ -119,32 +121,54 @@ export default {
             this.kpi.revenu.remaining += (c.revenu-revenu_produced);
             }); // End of forEach List
 
-          const records = doc.data().records;
-          var revenu =  0;
-          var margin = 0;
-         
-         let startTs = new Date(2021,0,1).getTime()
+          const records = doc.data().records;       
+          let startTs = new Date(2021,0,1).getTime();
+          let todayTs =  Date.now();
           records.forEach((r) => {
-            if (r.ts > startTs ){
-              revenu += r.revenu;
-              margin += r.margin
-              this.dashboardChartsOptions.series[0].data.push([r.ts, Math.round(revenu)]);
-              this.dashboardChartsOptions.series[1].data.push([r.ts, Math.round(margin)]);
-            }            
+            if (r.ts > startTs && r.ts < todayTs){
+              const index = series[0].findIndex( v => v[0] === r.ts);
+              if (index === -1){
+                series[0].push([r.ts, r.revenu]);
+                series[1].push([r.ts, r.margin]);
+                //console.log("Add date R " , new Date(r.ts).toISOString().slice(0, 10));
+              }else{
+                series[0][index][1] += r.revenu;
+                series[1][index][1] += r.margin;
+              }   
+            }         
           });
-          
+
           this.dashboardChartsOptions.chartOptions.forecastDataPoints.count = 0; 
           doc.data().previsions.forEach((r) => {
-            revenu += r.revenu;
-            margin += r.margin
-            this.dashboardChartsOptions.chartOptions.forecastDataPoints.count++;
-            this.dashboardChartsOptions.series[0].data.push([r.ts, Math.round(revenu)]);
-            this.dashboardChartsOptions.series[1].data.push([r.ts, Math.round(margin)]);
-          });         
+            if (r.ts >= todayTs){
+              const index = series[0].findIndex( v => v[0] === r.ts);
+              if (index === -1){
+                series[0].push([r.ts, r.revenu]);
+                series[1].push([r.ts, r.margin]);
+                //console.log("Add date P " , new Date(r.ts).toISOString().slice(0, 10));
+                this.dashboardChartsOptions.chartOptions.forecastDataPoints.count++;
+              }else{
+                series[0][index][1] += r.revenu;
+                series[1][index][1] += r.margin;
+              }   
+            }
+          }); 
         });
+        var revenu = 0, margin = 0;
+        this.dashboardChartsOptions.series[0].data = []; 
+        this.dashboardChartsOptions.series[1].data = []; 
+        //console.log(series[0]);
+        series[0].sort((a,b) => {return a[0] - b[0]; }) 
+        series[1].sort((a,b) => {return a[0] - b[0]; }) 
+        for (var i in series[0]){
+          revenu += series[0][i][1];
+          margin += series[1][i][1];
+          this.dashboardChartsOptions.series[0].data.push([series[0][i][0], Math.round(revenu)]);
+          this.dashboardChartsOptions.series[1].data.push([series[1][i][0], Math.round(margin)]);
+        }
+        //console.log("tada", this.dashboardChartsOptions.series[0].data);
       });
     }
-
   },
 };
 </script>

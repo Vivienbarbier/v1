@@ -204,8 +204,8 @@ export default {
     },
     create_new_case(){
       var db = getFirebaseBackend().getFirestore();
-      db.collection("case").doc(this.caseDoc.owners.business_unit).collection("current").add(this.caseDoc).then((docRef) => {
-       this.$router.push({ name: 'case-detail', params: { bu:this.caseDoc.owners.business_unit, caseId: docRef.id } })
+      db.collection("case").doc(this.caseDoc.group).collection("current").add(this.caseDoc).then((docRef) => {
+       this.$router.push({ name: 'case-detail', params: { group:this.caseDoc.group, caseId: docRef.id } })
       })
       .catch((error) => {
           console.error("Error writing document: ", error);

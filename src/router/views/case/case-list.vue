@@ -151,11 +151,12 @@ export default {
         <tbody>
           <tr v-for="data in table" :key="data.index">
             <td class="font-size-14 font-weight-bold" aligne="center">
-              <router-link :to="{ name: 'case-detail', params: { bu: data.business_unit, caseId: data.id }}" class="color-black">
+              <router-link :to="{ name: 'case-detail', params: { group: data.group, caseId: data.id }}" class="color-black">
               {{data.work_order_number}}
               </router-link>
             </td>
             <td class="font-size-14" aligne="center">{{ data.type }}</td>
+            <!--<td class="font-size-14" aligne="center">{{ data.group }}</td> -->
             <td class="font-size-14" aligne="center">{{ data.owner }}</td>
             <td class="font-size-14" aligne="center">{{ data.client }}</td>
             <td class="font-size-14" aligne="center">{{ data.name }}</td>
@@ -177,7 +178,7 @@ export default {
               >
             </td> 
             <td align="center">
-              <router-link :to="{ name: 'case-detail', params: { bu: data.business_unit, caseId: data.id }}">
+              <router-link :to="{ name: 'case-detail', params: { group: data.group, caseId: data.id }}">
                 <i class="mdi mdi-dots-horizontal font-size-18"></i>           
               </router-link>
             </td>
