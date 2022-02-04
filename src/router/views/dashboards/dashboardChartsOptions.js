@@ -165,28 +165,7 @@ const caseStatusHistogram = {
           opacity: 0.8,
         },
       },
-      series : [
-        {
-          name: "PE",
-          data: [0,0,0,0,0,0,0,0],
-        },
-        {
-          name: "TC",
-          data: [0,0,0,0,0,0,0,0],
-        },
-        {
-            name: "TLE",
-            data: [0,0,0,0,0,0,0,0],
-        },
-        {
-            name: "CCO",
-            data: [0,0,0,0,0,0,0,0],
-        },
-        {
-            name: "-",
-            data: [0,0,0,0,0,0,0,0],
-        }
-      ],
+      series : null,
 }
 
 export { dashboardChartsOptions, caseTypePieChart, caseStatusHistogram };

@@ -29,6 +29,24 @@ export default [
     component: () => import('./views/case/case-create')
   },
   {
+    path: "/admin/groups",
+    name: "Groups Admin",
+    meta: { authRequired: true },
+    component: () => import('./views/admin/groups')
+  },
+  {
+    path: "/planning",
+    name: "Planning",
+    meta: { authRequired: true },
+    component: () => import('./views/planning/planner')
+  },
+  {
+    path: "/billing",
+    name: "Billing",
+    meta: { authRequired: true },
+    component: () => import('./views/billing/bill-list')
+  },
+  {
     path: '/login',
     name: 'login',
     component: () => import('./views/account/login'),

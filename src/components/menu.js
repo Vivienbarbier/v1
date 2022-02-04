@@ -11,60 +11,48 @@ export const menuItems = [
         link: "/"
     },
     {
-        id: 7,
-        isLayout: true
-    },
-    {
-        id: 8,
+        id: 4,
         label: "menuitems.apps.text",
         isTitle: true
     },
     {
-        id: 9,
-        label: "menuitems.case.text",
+        id: 5,
+        label: "menuitems.case.list.create",
         icon: "bx-briefcase-alt-2",
-        subItems: [
-            {
-                id: 41,
-                label: "menuitems.case.list.create",
-                link: "/case/create",
-                parentId: 37
-            },
-            {
-                id: 39,
-                label: "menuitems.case.list.list",
-                link: "/case",
-                parentId: 37
-            },
-            {
-                id: 39,
-                label: "menuitems.case.list.grid",
-                link: "/",
-                parentId: 37
-            }
-        ]
-    },    
-    {
-        id: 10,
-        label: "menuitems.planning.text",
-        icon: "bx bx-calendar",
-        link: "/",
+        link: "/case/create",
     },
     {
-        id: 34,
-        label: "menuitems.invoicing.text",
-        icon: "bx-receipt",
-        link: "/",
+        id: 52,
+        label: "menuitems.case.list.list",
+        icon: "bx-briefcase-alt-2",
+        link: "/case",
+    },    
+    {
+        id: 6,
+        label: "menuitems.planning.text",
+        icon: "bx bx-calendar",
+        link: "/planning",
     },
     {
         id: 7,
-        isLayout: true
+        label: "menuitems.billing.text",
+        icon: "bx-receipt",
+        link: "/billing",
     },
-   {
-        id: 11,
-        label: "menuitems.settings.text",
+    {
+        id: 8,
+        label: "menuitems.admin.text",
         link: "/",
-        icon: "bx bx-slider"
+        icon: "bx bx-sitemap",
+        subItems: [
+            {
+                id: 41,
+                label: "menuitems.admin.list.groups",
+                link: "/admin/groups",
+                icon: "bx bx-sitemap",
+                parentId: 8
+            }
+        ]
     }
 ];
 

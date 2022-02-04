@@ -6,18 +6,13 @@
             <input v-model="item" type="text" class="form-control" :disabled="true"/>
         </template>
         <template v-else-if="type == 'datalist'"> 
-            <template v-if="multiple===true">
-                <multiselect v-model="val" :options="list" :multiple="true"></multiselect>
-            </template>
-            <template v-else>
-                <select v-model="val" class="form-control" :class="{'is-invalid': submitform && check!= null && check.$error}" @change="update()">
-                    <option value="" disabled selected>{{label}}</option>
-                    <template v-for="(value, propertyName, index) in list">
-                        <option :key="index" :value="propertyName">{{value}}</option>
-                    </template>
-                </select>
-            </template>           
-            <template v-if="check != undefined">
+            <select v-model="val" class="form-control" :class="{'is-invalid': submitform && check!= null && check.$error}" @change="update()">
+                <option value="" disabled selected>{{label}}</option>
+                <template v-for="(value, propertyName, index) in list">
+                    <option :key="index" :value="propertyName">{{value}}</option>
+                </template>
+            </select>
+        <template v-if="check != undefined">
                 <div v-if="submitform && check.$error" class="invalid-tooltip">
                     <span v-if="!check.required" >{{tooltip}}</span>
                 </div>
@@ -45,16 +40,11 @@
 </style>
 
 <script>
-import Multiselect from "vue-multiselect";
-
 export default {
-    components: {
-        Multiselect,
-    },
     data: () => ({
         val:  null,
     }), 
-    props: ['label', 'type', 'size','item', 'submitform', 'check','placeholder', 'tooltip','list','disabled','multiple'],
+    props: ['label', 'type', 'size','item', 'submitform', 'check','placeholder', 'tooltip','list','disabled'],
     model: {
         prop: 'item',
         event: 'updated'

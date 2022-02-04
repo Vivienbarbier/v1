@@ -3,6 +3,11 @@ import Layout from "../../layouts/main";
 import appConfig from "@/app.config";
 import PageHeader from "@/components/page-header";
 import Stat from "@/components/widgets/stat";
+
+  // import Treeselect component & Style
+  import Treeselect from '@riophae/vue-treeselect'
+  import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
 import { dashboardChartsOptions, caseTypePieChart, caseStatusHistogram} from "./dashboardChartsOptions";
 import { getFirebaseBackend } from "@/firebaseUtils";
 
@@ -23,7 +28,8 @@ export default {
   components: {
     Layout,
     PageHeader,
-    Stat
+    Stat,
+    Treeselect,
   },
   data() {
     return {
@@ -38,6 +44,63 @@ export default {
           active: true,
         },
       ],
+      groups : {
+        selected : ["DR1","DR2"],
+        list : [ 
+          {
+              id: 'DR1',
+              label: 'Direction régionnale #1',
+              children: [ {
+                id: 'DR1-T1',
+                label: 'Territoire #1',
+                children: [ 
+                  {
+                      id: 'DR1-T1-G1',
+                      label: 'Equipe A',
+                  },
+                  {
+                      id: 'DR1-T1-G2',
+                      label: 'Equipe B',
+                  },
+                  ]
+              }, {
+                id: 'DR1-T2',
+                label: 'Territoire #2',
+              } ],
+          }, 
+          { 
+            id: 'DR2',
+              label: 'Direction régionnale #2',
+              children: [ {
+                id: 'DR2-T1',
+                label: 'Territoire #1',
+                children: [ 
+                  {
+                      id: 'DR2-T1-G1',
+                      label: 'Equipe A',
+                  },
+                  {
+                      id: 'DR2-T1-G2',
+                      label: 'Equipe B',
+                  },
+                  ]
+              }, {
+                id: 'DR2-T2',
+                label: 'Territoire #2',
+                 children: [ 
+                  {
+                      id: 'DR2-T2-G1',
+                      label: 'Equipe A',
+                  },
+                  {
+                      id: 'DR2-T2-G2',
+                      label: 'Equipe B',
+                  },
+                  ]
+              } ],
+          }
+        ],
+      },
       kpi:{
         number_of_cases: {
           total : 0,
@@ -66,6 +129,75 @@ export default {
     this.load_case_list();
   },
   methods: {
+    getKPIObject(){
+      return {
+        ready : false,
+        number_of_cases: {
+          total : 0,
+          by_type: [0,0,0,0,0],
+          by_status : [],
+          by_status_and_type : [],
+        },
+        revenu : {
+          total : 0,
+          ytd: 0,
+          ytd_by_type : [0,0,0,0,0],
+          remaining : 0,
+        },
+        margin : {
+          total : 0,
+          ytd: 0,
+          ytd_by_type : [0,0,0,0,0],
+          remaining : 0,
+        },
+        finance : [new Array(),new Array()],
+        histogram : [ 
+          { name: "PE", data: [0,0,0,0,0,0,0,0], },
+          { name: "PE", data: [0,0,0,0,0,0,0,0], },
+          { name: "PE", data: [0,0,0,0,0,0,0,0], },
+          { name: "PE", data: [0,0,0,0,0,0,0,0], },
+          { name: "PE", data: [0,0,0,0,0,0,0,0], },
+          { name: "PE", data: [0,0,0,0,0,0,0,0], }
+        ]
+      };
+    },
+    getAllLeaves(tree){
+      var leaves = [];
+      if (tree.children === undefined){
+        leaves.push(tree.id);
+      }else{
+        tree.children.forEach((branch) => {        
+          leaves = leaves.concat(this.getAllLeaves(branch));
+        });
+      }
+    return leaves;    
+    },
+    exploreTree(selected, tree){
+      var leaves = [];
+      if (tree === undefined) return [];
+      tree.forEach((branch) => {
+        if (branch.id === selected){
+          leaves = leaves.concat(this.getAllLeaves(branch));
+        }else if (branch.children !== undefined){
+          leaves = leaves.concat(this.exploreTree(selected,branch.children));
+        }
+      });
+      return leaves;
+    },
+
+    getAllGroups(){
+      var leaves = [];
+      if(this.groups.selected.length === 0){
+        this.groups.list.forEach((branch) => {         
+          leaves = leaves.concat(this.getAllLeaves(branch));
+        });
+      }else{
+        this.groups.selected.forEach((s) => {
+          leaves = leaves.concat(this.exploreTree(s,this.groups.list));
+        });
+      }
+      return leaves;
+    },
     formatCurrency(amount, currency,maximumFractionDigits){
       if(currency === "KEUR"){
         if(amount === undefined) return "-";
@@ -73,18 +205,16 @@ export default {
       }
       return (Intl.NumberFormat('fr-FR', { style: 'currency', currency: currency, maximumFractionDigits: maximumFractionDigits }).format(amount));
     },
-    load_case_list(){
-      var series = [new Array(), new Array()];
-      var db = getFirebaseBackend().getFirestore();
-      db.collection("case")
-      .get()
-      .then((querySnapshot) => {
+    async load_case_list(){
+      this.kpi = this.getKPIObject();
+      this.dashboardChartsOptions.chartOptions.forecastDataPoints.count = 0;
+      
 
-        this.kpi.number_of_cases.by_type = [0,0,0,0,0];
-        this.kpi.revenu.ytd_by_type = [0,0,0,0,0];
-        this.kpi.margin.ytd_by_type = [0,0,0,0,0];
-        querySnapshot.forEach((doc) => { 
-          console.log(doc.data().group)
+      var db = getFirebaseBackend().getFirestore();
+      var firestore = getFirebaseBackend().getFirestoreObj();
+      var groups = this.getAllGroups();
+      db.collection("case").where(firestore.FieldPath.documentId(), 'in', groups).get().then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
           const list = doc.data().list;
           list.forEach((c) => {
             this.kpi.number_of_cases.total++;
@@ -96,7 +226,7 @@ export default {
               case 'CCO' :    type = 3; break;
               default :       type = 4; break;
             }   
-            
+
             var stat;
             switch (c.status) {
               case 'qualify' :    stat = 0; break;
@@ -108,10 +238,9 @@ export default {
               case 'closed' :     stat = 7; break;
               default :           stat = 8; break;
             }
-            this.caseStatusHistogram.series[type].data[stat]++;
-            //this.kpi.number_of_cases.by_status[type][stat]++
-            this.caseStatusHistogram.ready = true;
-            
+            this.kpi.histogram[type].data[stat]++;
+
+
             const revenu_produced = (c.revenu*c.progress)/100;
             this.kpi.number_of_cases.by_type[type]++;
             this.kpi.revenu.ytd += c.ytd_revenu;
@@ -120,54 +249,50 @@ export default {
             this.kpi.margin.ytd_by_type[type] += c.ytd_margin;
             this.kpi.revenu.remaining += (c.revenu-revenu_produced);
             }); // End of forEach List
-
           const records = doc.data().records;       
           let startTs = new Date(2021,0,1).getTime();
           let todayTs =  Date.now();
           records.forEach((r) => {
             if (r.ts > startTs && r.ts < todayTs){
-              const index = series[0].findIndex( v => v[0] === r.ts);
+              const index = this.kpi.finance[0].findIndex( v => v[0] === r.ts);
               if (index === -1){
-                series[0].push([r.ts, r.revenu]);
-                series[1].push([r.ts, r.margin]);
-                //console.log("Add date R " , new Date(r.ts).toISOString().slice(0, 10));
+                this.kpi.finance[0].push([r.ts, r.revenu]);
+                this.kpi.finance[1].push([r.ts, r.margin]);
               }else{
-                series[0][index][1] += r.revenu;
-                series[1][index][1] += r.margin;
+                this.kpi.finance[0][index][1] += r.revenu;
+                this.kpi.finance[1][index][1] += r.margin;
               }   
             }         
           });
 
-          this.dashboardChartsOptions.chartOptions.forecastDataPoints.count = 0; 
           doc.data().previsions.forEach((r) => {
             if (r.ts >= todayTs){
-              const index = series[0].findIndex( v => v[0] === r.ts);
+              const index = this.kpi.finance[0].findIndex( v => v[0] === r.ts);
               if (index === -1){
-                series[0].push([r.ts, r.revenu]);
-                series[1].push([r.ts, r.margin]);
-                //console.log("Add date P " , new Date(r.ts).toISOString().slice(0, 10));
+                this.kpi.finance[0].push([r.ts, r.revenu]);
+                this.kpi.finance[1].push([r.ts, r.margin]);
                 this.dashboardChartsOptions.chartOptions.forecastDataPoints.count++;
               }else{
-                series[0][index][1] += r.revenu;
-                series[1][index][1] += r.margin;
+                this.kpi.finance[0][index][1] += r.revenu;
+                this.kpi.finance[1][index][1] += r.margin;
               }   
             }
-          }); 
-        });
+          });   
+        }); // End of QuerySnapshot
         var revenu = 0, margin = 0;
         this.dashboardChartsOptions.series[0].data = []; 
         this.dashboardChartsOptions.series[1].data = []; 
-        //console.log(series[0]);
-        series[0].sort((a,b) => {return a[0] - b[0]; }) 
-        series[1].sort((a,b) => {return a[0] - b[0]; }) 
-        for (var i in series[0]){
-          revenu += series[0][i][1];
-          margin += series[1][i][1];
-          this.dashboardChartsOptions.series[0].data.push([series[0][i][0], Math.round(revenu)]);
-          this.dashboardChartsOptions.series[1].data.push([series[1][i][0], Math.round(margin)]);
+        this.kpi.finance[0].sort((a,b) => {return a[0] - b[0]; }) 
+        this.kpi.finance[1].sort((a,b) => {return a[0] - b[0]; }) 
+
+        for (var i in this.kpi.finance[0]){
+          revenu += this.kpi.finance[0][i][1];
+          margin += this.kpi.finance[1][i][1];
+          this.dashboardChartsOptions.series[0].data.push([this.kpi.finance[0][i][0], Math.round(revenu)]);
+          this.dashboardChartsOptions.series[1].data.push([this.kpi.finance[1][i][0], Math.round(margin)]);
         }
-        //console.log("tada", this.dashboardChartsOptions.series[0].data);
-      });
+        this.kpi.ready = true;
+      }); // end of db Read
     }
   },
 };
@@ -176,6 +301,13 @@ export default {
 <template>
   <Layout>
     <PageHeader :title="title" :items="items" />
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <treeselect v-model="groups.selected" :multiple="true" :options="groups.list" :append-to-body="true" :show-count="true" @input=" load_case_list()"/>
+        </div>
+      </div>
+     </div>
     <div class="row">
       <div class="col-md-4">
         <Stat 
@@ -206,7 +338,7 @@ export default {
       <div class="col-md-12">
         <div class="card">
           <div class="card-body">
-            <apexchart v-if="this.dashboardChartsOptions.series[0].data[0] !== undefined"
+            <apexchart v-if="this.kpi.ready"
               class="apex-charts"
               height="380"
               dir="ltr"
@@ -221,7 +353,7 @@ export default {
           <div class="card-body">
             <h4 class="card-title mb-4">{{ kpi.number_of_cases.total.toString() }} chantiers par Type</h4>
             <div>
-              <apexchart
+              <apexchart v-if="this.kpi.ready"
                 class="apex-charts"
                 dir="ltr"
                 height="240"
@@ -276,12 +408,12 @@ export default {
           <div class="card">
             <div class="card-body">
             <h4 class="card-title mb-4">Statuts</h4>
-            <apexchart v-if="this.caseStatusHistogram.ready"
+            <apexchart v-if="this.kpi.ready"
               class="apex-charts"
               type="bar"
               dir="ltr"
               height="305"
-              :series="this.caseStatusHistogram.series"
+              :series="this.kpi.histogram"
               :options="this.caseStatusHistogram.chartOptions"
             ></apexchart>
           </div> 

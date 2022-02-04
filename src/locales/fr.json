@@ -33,11 +33,14 @@
         "planning": {
             "text": "Plannification"
         },
-        "invoicing": {
+        "billing": {
             "text": "Facturation"
         },
-        "settings": {
-            "text": "Paramètres"
+        "admin": {
+            "text": "Administration",
+            "list": {
+                "groups": "Groupes"
+            }
         }
         
     },

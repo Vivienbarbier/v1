@@ -6,6 +6,11 @@ import "firebase/firestore";
 import store from '@/state/store'
 import { getFirebaseBackend } from './../../../firebaseUtils'
 
+
+  // import Treeselect component & Style
+  import Treeselect from '@riophae/vue-treeselect'
+  import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
 import {
   required,
 } from "vuelidate/lib/validators";
@@ -18,7 +23,7 @@ export default {
     title: "Profile Utilisateur",
     meta: [{ name: "Profile Utilisateur", content: appConfig.description }],
   },
-  components: { Layout, form_entry },
+  components: { Layout, form_entry, Treeselect },
   data() {
     return {
       users : store.getters['auth/getCurrentUser'],
@@ -38,6 +43,63 @@ export default {
         OAURA : "Auvergne-Rhône-Alpes"
       },
       group_datalist : [ "Aura(tous)","Montélimar", "TH"],
+        // define options
+        options: [ 
+            {
+                id: 'DR1',
+                label: 'Direction régionnale #1',
+                children: [ {
+                  id: 'DR1-T1',
+                  label: 'Territoire #1',
+                  children: [ 
+                    {
+                        id: 'DR1-T1-G1',
+                        label: 'Equipe A',
+                    },
+                    {
+                        id: 'DR1-T1-G2',
+                        label: 'Equipe B',
+                    },
+                    ]
+                }, {
+                  id: 'DR1-T2',
+                  label: 'Territoire #2',
+                } ],
+            }, 
+            { 
+              id: 'DR2',
+                label: 'Direction régionnale #2',
+                children: [ {
+                  id: 'DR2-T1',
+                  label: 'Territoire #1',
+                  children: [ 
+                    {
+                        id: 'DR2-T1-G1',
+                        label: 'Equipe A',
+                    },
+                    {
+                        id: 'DR2-T1-G2',
+                        label: 'Equipe B',
+                    },
+                    ]
+                }, {
+                  id: 'DR2-T2',
+                  label: 'Territoire #2',
+                   children: [ 
+                    {
+                        id: 'DR2-T2-G1',
+                        label: 'Equipe A',
+                    },
+                    {
+                        id: 'DR2-T2-G2',
+                        label: 'Equipe B',
+                    },
+                    ]
+                } ],
+            }
+        ],
+
+
     };   
   },
   validations: {   
@@ -61,7 +123,8 @@ export default {
             displayName :   document.data().displayName,
             business_unit : document.data().business_unit,
             email :         document.data().email,
-            phoneNumber :   document.data().phoneNumber, 
+            phoneNumber :   document.data().phoneNumber,
+            groups : document.data().groups, 
           }
       });
     }, 
@@ -70,9 +133,10 @@ export default {
       this.$v.$touch();
       if (!this.$v.$invalid) {
         getFirebaseBackend().updateProfile({
-          displayName   : (this.userData.displayName === undefined ?  "" : this.userData.displayName),
+          displayName   : (this.userData.displayName === undefined ?    "" : this.userData.displayName),
           business_unit : (this.userData.business_unit === undefined ?  "" : this.userData.business_unit),
-          phoneNumber   : (this.userData.phoneNumber === undefined ?  "" : this.userData.phoneNumber),
+          phoneNumber   : (this.userData.phoneNumber === undefined ?    "" : this.userData.phoneNumber),
+          groups        : (this.userData.groups === undefined ?         "" : this.userData.groups),
         }).then(() => {
         }).catch((error) => {
           console.log("Error : Unable to updathe User information.",error)
@@ -96,7 +160,7 @@ export default {
                   <form_entry type='text'     label="Nom utilisateur"    v-model="userData.displayName"    size="6"  :check="$v.userData.firstname   "   tooltip="Champs obligatoire" :submitform="submitform"/>
                   <form_entry type='datalist' label="Business Unit"      v-model="userData.business_unit"  size="6"  :check="$v.userData.business_unit"  tooltip="Champs obligatoire" :submitform="submitform"  :list="bu_datalist"/>
                   <form_entry type='label'     label="E-mail"            v-model="userData.email    "      size="6"  :check="$v.userData.email       "   tooltip="Champs obligatoire" :submitform="submitform" /> 
-                  <form_entry type='text'     label="Téléphone"      v-model="userData.phoneNumber"    size="6"  :check="$v.userData.phoneNumber   " tooltip="Champs obligatoire" :submitform="submitform"/>
+                  <form_entry type='text'     label="Téléphone"          v-model="userData.phoneNumber"    size="6"  :check="$v.userData.phoneNumber   " tooltip="Champs obligatoire" :submitform="submitform"/>
                   </div>
             </div>
           </div>           
@@ -108,8 +172,8 @@ export default {
               <h4 class="card-title font-size-16">Droits</h4>
               <!--<p class="card-title-desc">----</p> -->
                 <div class="row">
-                  <form_entry type='datalist'     label="Groupe(s)"   v-model="userData.groups"    size="6"  :check="$v.userData.groups   "   tooltip="Champs obligatoire" :submitform="submitform"  :list="group_datalist" :multiple="true" />                 
-                  </div>
+                    <treeselect v-model="userData.groups" :multiple="true" :options="options" :append-to-body="true" :show-count="true"/>     
+                </div>
             </div>
           </div>           
         </div>

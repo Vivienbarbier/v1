@@ -87,11 +87,6 @@ class FirebaseAuthBackend {
         });
     }    
 
-
-
-
-
-
     /**
      * getFirestore
      */
@@ -99,6 +94,12 @@ class FirebaseAuthBackend {
         var db = firebase.firestore();
         return db;        
     }
+    /**
+     * getFirestoreObj
+     */
+        getFirestoreObj = () => {
+            return firebase.firestore;        
+        }
     
 
     /**
