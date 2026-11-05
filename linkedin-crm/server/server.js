@@ -5,7 +5,8 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, upsertProfile, listProfiles, getProfile, updateProfile, deleteProfile, stats, toCsv } from './db.js';
+import { DATA_DIR, upsertProfile, listProfiles, getProfile, updateProfile, deleteProfile, stats, toCsv, completeSlugs } from './db.js';
+import { importConnections } from './import-csv.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PORT = +process.env.PORT || 4317;
@@ -57,6 +58,17 @@ const server = http.createServer(async (req, res) => {
         if (r) r.created ? created++ : updated++;
       }
       return send(res, 200, { created, updated });
+    }
+
+    if (p === '/api/known' && req.method === 'POST') {
+      const body = await readBody(req);
+      return send(res, 200, { complete: completeSlugs(Array.isArray(body.slugs) ? body.slugs : []) });
+    }
+
+    if (p === '/api/import' && req.method === 'POST') {
+      const chunks = []; let size = 0;
+      for await (const c of req) { size += c.length; if (size > 20_000_000) throw new Error('fichier trop gros'); chunks.push(c); }
+      return send(res, 200, importConnections(Buffer.concat(chunks).toString('utf8')));
     }
 
     if (p === '/api/export.csv') {

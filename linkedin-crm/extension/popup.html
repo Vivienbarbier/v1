@@ -3,17 +3,37 @@
 <head>
 <meta charset="utf-8">
 <style>
-  body { width: 320px; margin: 0; padding: 14px; font: 13px/1.4 system-ui, sans-serif; }
+  body { width: 340px; margin: 0; padding: 14px; font: 13px/1.4 system-ui, sans-serif; }
   label { display: block; margin: 10px 0 3px; color: #666; font-size: 12px }
-  input[type=text], input[type=password] { width: 100%; box-sizing: border-box; padding: 6px 8px }
-  .row { display: flex; justify-content: space-between; align-items: center }
+  input[type=text], input[type=password], input[type=number] { width: 100%; box-sizing: border-box; padding: 6px 8px }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px }
   #state { margin: 10px 0; padding: 8px; border-radius: 6px; background: #eef6ee } #state.bad { background: #fdecea }
   button { padding: 6px 10px; cursor: pointer }
+  fieldset { margin: 14px 0 0; padding: 8px 10px 10px; border: 1px solid #ddd; border-radius: 6px }
+  legend { font-weight: 600; padding: 0 4px }
+  #crawlState { margin: 8px 0; padding: 8px; border-radius: 6px; background: #f1f3f5; min-height: 18px }
+  #crawlState.warn { background: #fff4e0 } #crawlState.bad { background: #fdecea }
+  .hint { color: #777; font-size: 11px; margin: 6px 0 0 }
 </style>
 </head>
 <body>
   <div class="row"><b>LinkedIn Local CRM</b><label style="margin:0"><input type="checkbox" id="enabled"> actif</label></div>
   <div id="state">…</div>
+
+  <fieldset>
+    <legend>Exploration limitée</legend>
+    <div class="row">
+      <button id="crawlStart">Explorer les profils de cette page</button>
+    </div>
+    <div id="crawlState">Inactive.</div>
+    <div class="row"><button id="crawlPause" hidden>Pause</button><button id="crawlResume" hidden>Reprendre</button><button id="crawlStop" hidden>Arrêter</button></div>
+    <div class="row" style="margin-top:8px">
+      <label style="margin:0">Max / jour <input type="number" id="dailyCap" min="1" max="100" style="width:60px"></label>
+      <label style="margin:0"><input type="checkbox" id="withContact"> coordonnées</label>
+    </div>
+    <p class="hint">Un profil toutes les 30 à 75 s, onglet d'arrière-plan. Défilez la liste avant de lancer : seuls les profils déjà affichés sont pris. Arrêt automatique si LinkedIn affiche une vérification. Plafond absolu : 100 / jour.</p>
+  </fieldset>
+
   <label>Adresse du serveur</label><input type="text" id="serverUrl">
   <label>Token (affiché au démarrage du serveur)</label><input type="password" id="token">
   <p><button id="save">Enregistrer</button> <button id="open">Ouvrir ma base</button></p>

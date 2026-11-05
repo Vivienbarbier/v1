@@ -145,6 +145,7 @@
   const hash = (o) => JSON.stringify([o.name, o.headline, o.location, o.email, o.phone, o.about, o.experience?.length, o.websites?.length]);
 
   function scan() {
+    if (checkBlocked()) return;
     const found = [];
     const prof = parseProfilePage();
     if (prof) found.push(prof);
@@ -160,6 +161,35 @@
     try { chrome.runtime.sendMessage({ type: 'ingest', profiles: fresh }); } catch { /* extension rechargée : ignorer */ }
   }
   window.__lcrmScan = scan;
+
+  // ---------- Exploration : liste des profils de la page + détection de blocage ----------
+  try {
+    chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
+      if (msg?.type === 'listSlugs') {
+        const slugs = parseCards().map((c) => c.slug);
+        reply({ slugs, count: slugs.length });
+      }
+    });
+  } catch { /* hors extension (tests) */ }
+
+  // Page de vérification / limite : on prévient le service worker, qui arrête l'exploration.
+  const BLOCK_PATH = /^\/(checkpoint|authwall|uas\/|login|signup)/;
+  const BLOCK_TEXT = /activit[ée] inhabituelle|unusual activity|v[ée]rification de s[ée]curit[ée]|security verification|limite.{0,40}(consultations|visites|profils)|(reached|atteint).{0,40}(limit|limite)|temporarily restricted|temporairement restreint/i;
+  let blockedSent = false;
+  /** Vrai si la page est une vérification / limite LinkedIn : on n'en extrait alors rien. */
+  function checkBlocked() {
+    let reason = BLOCK_PATH.test(location.pathname) ? location.pathname : '';
+    if (!reason) {
+      const probe = [...document.querySelectorAll('h1, h2, [role="dialog"], .artdeco-modal, [role="alert"]')].map(txt).join(' ').slice(0, 3000);
+      if (BLOCK_TEXT.test(probe)) reason = 'texte d’alerte LinkedIn';
+    }
+    if (reason && !blockedSent) {
+      blockedSent = true;
+      try { chrome.runtime.sendMessage({ type: 'blocked', reason }); } catch { /* ignoré */ }
+    }
+    if (!reason) blockedSent = false;
+    return !!reason;
+  }
 
   // LinkedIn est une SPA : on scanne après chaque pause de mutations DOM et à chaque changement d'URL.
   let timer;

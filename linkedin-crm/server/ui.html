@@ -29,6 +29,8 @@
   <label><input type="checkbox" id="hasPhone"> tél.</label>
   <select id="sort"><option value="last_seen">Vus récemment</option><option value="first_seen">Ajoutés récemment</option><option value="name">Nom</option><option value="seen_count">Plus vus</option></select>
   <button id="csv">Export CSV</button>
+  <button id="imp" title="Connections.csv de l'export officiel LinkedIn">Importer mes relations</button>
+  <input type="file" id="impFile" accept=".csv,text/csv" hidden>
   <span class="stats" id="stats"></span>
 </header>
 <main>
@@ -85,6 +87,14 @@ $('rows').onclick = (e) => { const tr = e.target.closest('tr.row'); if (tr) show
 $('q').oninput = () => { clearTimeout(timer); timer = setTimeout(load, 200); };
 for (const id of ['status', 'sort', 'hasEmail', 'hasPhone']) $(id).onchange = load;
 $('csv').onclick = async () => { const r = await fetch('/api/export.csv', { headers: { 'x-token': token } }); const a = document.createElement('a'); a.href = URL.createObjectURL(await r.blob()); a.download = 'linkedin-profiles.csv'; a.click(); };
+$('imp').onclick = () => $('impFile').click();
+$('impFile').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = await fetch('/api/import', { method: 'POST', headers: { 'x-token': token, 'content-type': 'text/csv' }, body: await f.text() });
+  const j = await r.json(); e.target.value = '';
+  alert(r.ok ? `Import terminé : ${j.created} ajoutés, ${j.updated} complétés, ${j.skipped} ignorés (sans URL).` : 'Échec : ' + j.error);
+  load();
+};
 load().catch(() => {}); setInterval(() => load().catch(() => {}), 15000);
 </script>
 </body>

@@ -60,18 +60,24 @@ function hydrate(r) {
 }
 
 /** Insère ou fusionne un profil : une valeur vide ne remplace jamais une valeur connue. */
-export function upsertProfile(p) {
+export function upsertProfile(p, { fillOnly = false, seen = true } = {}) {
   const slug = normalizeSlug(p.slug);
   if (!slug || slug.length > 200) return null;
   const now = new Date().toISOString();
   const old = db.prepare('SELECT * FROM profiles WHERE slug = ?').get(slug);
 
+  // fillOnly (import CSV) : ne complète que les champs vides, n'écrase jamais une donnée déjà capturée.
   const next = {};
-  for (const f of TEXT_FIELDS) next[f] = clean(p[f], f === 'about' ? 6000 : 500) || (old?.[f] ?? '');
+  for (const f of TEXT_FIELDS) {
+    const incoming = clean(p[f], f === 'about' ? 6000 : 500);
+    const prev = old?.[f] ?? '';
+    next[f] = fillOnly ? (prev || incoming) : (incoming || prev);
+  }
   if (!next.url) next.url = `https://www.linkedin.com/in/${encodeURIComponent(slug)}/`;
   for (const f of JSON_FIELDS) {
     const incoming = Array.isArray(p[f]) ? p[f].slice(0, 30) : [];
-    next[f] = JSON.stringify(incoming.length ? incoming : parse(old?.[f], []));
+    const prev = parse(old?.[f], []);
+    next[f] = JSON.stringify(fillOnly ? (prev.length ? prev : incoming) : (incoming.length ? incoming : prev));
   }
   if (!next.company) {
     const exp = parse(next.experience, []);
@@ -82,14 +88,15 @@ export function upsertProfile(p) {
 
   if (old) {
     db.prepare(`UPDATE profiles SET url=?, name=?, headline=?, company=?, location=?, about=?, email=?, phone=?,
-      websites=?, experience=?, degree=?, connected_since=?, sources=?, last_seen=?, seen_count=seen_count+1 WHERE slug=?`)
+      websites=?, experience=?, degree=?, connected_since=?, sources=?, last_seen=?, seen_count=seen_count+? WHERE slug=?`)
       .run(next.url, next.name, next.headline, next.company, next.location, next.about, next.email, next.phone,
-        next.websites, next.experience, next.degree, next.connected_since, JSON.stringify([...sources]), now, slug);
+        next.websites, next.experience, next.degree, next.connected_since, JSON.stringify([...sources]),
+        seen ? now : old.last_seen, seen ? 1 : 0, slug);
   } else {
     db.prepare(`INSERT INTO profiles (slug,url,name,headline,company,location,about,email,phone,websites,experience,
-      degree,connected_since,sources,first_seen,last_seen,seen_count) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)`)
+      degree,connected_since,sources,first_seen,last_seen,seen_count) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
       .run(slug, next.url, next.name, next.headline, next.company, next.location, next.about, next.email, next.phone,
-        next.websites, next.experience, next.degree, next.connected_since, JSON.stringify([...sources]), now, now);
+        next.websites, next.experience, next.degree, next.connected_since, JSON.stringify([...sources]), now, now, seen ? 1 : 0);
   }
   return { slug, created: !old };
 }
@@ -129,6 +136,14 @@ export function updateProfile(slug, patch) {
 
 export function deleteProfile(slug) {
   return db.prepare('DELETE FROM profiles WHERE slug = ?').run(normalizeSlug(slug)).changes > 0;
+}
+
+/** Parmi ces slugs, ceux dont la page profil complète a déjà été capturée (inutile de les rouvrir). */
+export function completeSlugs(slugs) {
+  const list = [...new Set(slugs.map(normalizeSlug).filter(Boolean))].slice(0, 1000);
+  if (!list.length) return [];
+  const q = list.map(() => '?').join(',');
+  return db.prepare(`SELECT slug FROM profiles WHERE slug IN (${q}) AND sources LIKE '%"profile"%'`).all(...list).map(r => r.slug);
 }
 
 export function stats() {
