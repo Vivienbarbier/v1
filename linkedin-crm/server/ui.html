@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mes contacts LinkedIn</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1b1f24; --mute:#6b7380; --line:#e3e6ea; --acc:#0a66c2; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1d2227; --fg:#e8eaed; --mute:#9aa3ad; --line:#2c333a; --acc:#6cb2f5; } }
+  * { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui,sans-serif }
+  header { display:flex; gap:10px; flex-wrap:wrap; align-items:center; padding:12px 16px; background:var(--card); border-bottom:1px solid var(--line); position:sticky; top:0 }
+  input,select,textarea,button { font:inherit; color:inherit; background:var(--card); border:1px solid var(--line); border-radius:6px; padding:6px 10px }
+  button { cursor:pointer } button:hover { border-color:var(--acc) }
+  #q { flex:1; min-width:200px } .stats { color:var(--mute); font-size:13px }
+  main { display:grid; grid-template-columns:1fr; gap:0 } @media (min-width:900px){ main { grid-template-columns:1fr 380px } }
+  table { width:100%; border-collapse:collapse } th,td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top }
+  th { color:var(--mute); font-weight:500; font-size:12px } tr.row { cursor:pointer } tr.row:hover, tr.sel { background:var(--card) }
+  .sub { color:var(--mute); font-size:13px } .pill { font-size:11px; border:1px solid var(--line); border-radius:99px; padding:1px 8px; color:var(--mute) }
+  aside { background:var(--card); border-left:1px solid var(--line); padding:16px; min-height:50vh } aside h2 { margin:0 0 2px }
+  aside label { display:block; margin:12px 0 4px; font-size:12px; color:var(--mute) } aside textarea { width:100%; min-height:90px }
+  a { color:var(--acc) } .exp { margin:0; padding-left:16px } .empty { padding:40px; text-align:center; color:var(--mute) }
+</style>
+</head>
+<body>
+<header>
+  <input id="q" type="search" placeholder="Rechercher : nom, poste, entreprise, ville, notes…" autofocus>
+  <select id="status"><option value="">Tous statuts</option></select>
+  <label><input type="checkbox" id="hasEmail"> email</label>
+  <label><input type="checkbox" id="hasPhone"> tél.</label>
+  <select id="sort"><option value="last_seen">Vus récemment</option><option value="first_seen">Ajoutés récemment</option><option value="name">Nom</option><option value="seen_count">Plus vus</option></select>
+  <button id="csv">Export CSV</button>
+  <span class="stats" id="stats"></span>
+</header>
+<main>
+  <section><table><thead><tr><th>Nom</th><th>Poste / Entreprise</th><th>Contact</th><th>Statut</th></tr></thead><tbody id="rows"></tbody></table><div id="empty" class="empty" hidden></div></section>
+  <aside id="detail"><p class="sub">Sélectionnez un contact.</p></aside>
+</main>
+<script>
+const STATUSES = ['nouveau','à contacter','contacté','répondu','rdv','ignoré'];
+let token = new URLSearchParams(location.hash.slice(1)).get('token');
+try { if (token) localStorage.setItem('lcrm_token', token); else token = localStorage.getItem('lcrm_token'); } catch {}
+if (token) history.replaceState(null, '', location.pathname);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { 'x-token': token || '', 'content-type': 'application/json' } });
+  if (r.status === 401) { $('empty').hidden = false; $('empty').textContent = "Token manquant : ouvrez l'URL affichée au démarrage du serveur."; throw new Error('401'); }
+  return r.json();
+}
+for (const s of STATUSES) $('status').insertAdjacentHTML('beforeend', `<option>${esc(s)}</option>`);
+let current = null, timer;
+async function load() {
+  const p = new URLSearchParams({ q: $('q').value, status: $('status').value, sort: $('sort').value, limit: 200 });
+  if ($('hasEmail').checked) p.set('has_email', '1'); if ($('hasPhone').checked) p.set('has_phone', '1');
+  const [{ total, profiles }, st] = await Promise.all([api('/api/profiles?' + p), api('/api/stats')]);
+  $('stats').textContent = `${total} résultat(s) · ${st.total} en base · ${st.with_email} emails · ${st.with_phone} tél.`;
+  $('empty').hidden = profiles.length > 0; $('empty').textContent = 'Aucun contact. Naviguez sur LinkedIn avec l’extension active.';
+  $('rows').innerHTML = profiles.map(x => `<tr class="row ${x.slug === current ? 'sel' : ''}" data-slug="${esc(x.slug)}">
+    <td><b>${esc(x.name || x.slug)}</b><div class="sub">${esc(x.location)}</div></td>
+    <td>${esc(x.headline)}<div class="sub">${esc(x.company)}</div></td>
+    <td class="sub">${esc(x.email)}<br>${esc(x.phone)}</td><td><span class="pill">${esc(x.status)}</span></td></tr>`).join('');
+}
+async function show(slug) {
+  current = slug; const x = await api('/api/profiles/' + encodeURIComponent(slug));
+  const opts = STATUSES.map(s => `<option ${s === x.status ? 'selected' : ''}>${esc(s)}</option>`).join('');
+  $('detail').innerHTML = `<h2>${esc(x.name || x.slug)}</h2><div class="sub">${esc(x.headline)}</div><div class="sub">${esc(x.location)}</div>
+    <p><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">Ouvrir sur LinkedIn ↗</a></p>
+    ${x.email ? `<div>✉ <a href="mailto:${esc(x.email)}">${esc(x.email)}</a></div>` : ''}${x.phone ? `<div>☎ ${esc(x.phone)}</div>` : ''}
+    ${x.websites.map(w => `<div class="sub">${esc(w)}</div>`).join('')}
+    <label>Statut</label><select id="dStatus">${opts}</select>
+    <label>Tags (séparés par des virgules)</label><input id="dTags" style="width:100%" value="${esc(x.tags.join(', '))}">
+    <label>Notes</label><textarea id="dNotes">${esc(x.notes)}</textarea>
+    <p><button id="save">Enregistrer</button> <button id="del">Supprimer</button></p>
+    ${x.about ? `<label>À propos</label><div class="sub">${esc(x.about)}</div>` : ''}
+    ${x.experience.length ? `<label>Expériences</label><ul class="exp">${x.experience.map(e => `<li>${esc(e.title)} <span class="sub">${esc(e.company || '')} ${esc(e.dates || '')}</span></li>`).join('')}</ul>` : ''}
+    <p class="sub">Vu ${x.seen_count}× · premier passage ${esc(x.first_seen?.slice(0,10))} · dernier ${esc(x.last_seen?.slice(0,10))}</p>`;
+  $('save').onclick = async () => {
+    await api('/api/profiles/' + encodeURIComponent(slug), { method: 'PATCH', body: JSON.stringify({ status: $('dStatus').value, notes: $('dNotes').value, tags: $('dTags').value.split(',').map(s => s.trim()).filter(Boolean) }) });
+    load();
+  };
+  $('del').onclick = async () => { if (confirm('Supprimer ce contact ?')) { await api('/api/profiles/' + encodeURIComponent(slug), { method: 'DELETE' }); current = null; $('detail').innerHTML = ''; load(); } };
+  load();
+}
+$('rows').onclick = (e) => { const tr = e.target.closest('tr.row'); if (tr) show(tr.dataset.slug); };
+$('q').oninput = () => { clearTimeout(timer); timer = setTimeout(load, 200); };
+for (const id of ['status', 'sort', 'hasEmail', 'hasPhone']) $(id).onchange = load;
+$('csv').onclick = async () => { const r = await fetch('/api/export.csv', { headers: { 'x-token': token } }); const a = document.createElement('a'); a.href = URL.createObjectURL(await r.blob()); a.download = 'linkedin-profiles.csv'; a.click(); };
+load().catch(() => {}); setInterval(() => load().catch(() => {}), 15000);
+</script>
+</body>
+</html>
